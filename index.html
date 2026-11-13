@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <title>刘姥姥一进荣国府</title>
+  <link rel="stylesheet" href="style.css?v=8">
+</head>
+<body>
+  <div id="app">
+    <header id="top-bar">
+      <div id="game-title">刘姥姥一进荣国府</div>
+      <div id="top-status">
+        <span id="progress">第 - / 16 幕</span>
+        <div id="hp-bar" title="人情值">
+          <div id="hp-fill"></div>
+          <span id="hp-text">人情 100</span>
+        </div>
+        <button id="chars-btn" type="button">人物谱</button>
+        <button id="manual-btn" type="button">文化手册 <span id="manual-count">0/7</span></button>
+      </div>
+    </header>
+
+    <main id="stage">
+      <div id="camera-rig">
+        <div id="bg-layer"></div>
+        <div id="hotspot-layer"></div>
+      </div>
+      <div id="transition-overlay"></div>
+
+      <div id="portrait-layer">
+        <img id="speaker-portrait" src="" alt="说话人">
+      </div>
+
+      <div id="choice-panel" class="hidden"></div>
+
+      <div id="dialog-box">
+        <div id="dialog-speaker"></div>
+        <div id="dialog-text"></div>
+        <div id="dialog-hint">点击此处继续</div>
+      </div>
+    </main>
+
+    <div id="hotspot-card" class="hidden">
+      <button id="card-close" type="button" aria-label="关闭">&times;</button>
+      <img id="card-image" src="" alt="">
+      <h3 id="card-title"></h3>
+      <p id="card-surface"></p>
+      <p id="card-usage"></p>
+      <p id="card-culture"></p>
+      <p id="card-source"></p>
+    </div>
+
+    <div id="manual-panel" class="hidden">
+      <div class="panel-content">
+        <h2>文化手册 <span id="panel-count">0/7</span></h2>
+        <div id="manual-list"></div>
+        <button id="close-manual" type="button">关闭</button>
+      </div>
+    </div>
+
+    <div id="chars-panel" class="hidden">
+      <div class="panel-content">
+        <h2>人物谱</h2>
+        <div id="chars-list"></div>
+        <button id="close-chars" type="button">关闭</button>
+      </div>
+    </div>
+
+    <div id="start-screen">
+      <div class="start-bg"></div>
+      <div class="start-overlay"></div>
+      <div class="start-content">
+        <h1>刘姥姥一进荣国府</h1>
+        <p>《红楼梦》第六回 · 互动叙事</p>
+        <div class="start-btns">
+          <button id="start-btn" type="button">进入序幕</button>
+          <button id="cover-about-btn" type="button">游戏介绍</button>
+          <button id="cover-rules-btn" type="button">规则说明</button>
+          <button id="cover-save-btn" type="button">游戏存档</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="cover-panel" class="hidden">
+      <div class="cover-panel-bg"></div>
+      <div class="cover-panel-content">
+        <button id="cover-panel-close" type="button" aria-label="关闭">&times;</button>
+        <h2 id="cover-panel-title"></h2>
+        <div id="cover-panel-body"></div>
+      </div>
+    </div>
+
+    <div id="prologue-screen" class="hidden">
+      <div id="prologue-bg"></div>
+      <div id="prologue-overlay"></div>
+      <div id="prologue-content">
+        <h2 id="prologue-title"></h2>
+        <div id="prologue-text"></div>
+        <div id="prologue-extra"></div>
+        <button id="prologue-btn" type="button">继续</button>
+      </div>
+    </div>
+
+    <div id="settlement-screen" class="hidden">
+      <div class="settlement-content">
+        <h2>文化手册结算</h2>
+        <p id="settlement-count"></p>
+        <p id="settlement-rating"></p>
+        <div id="settlement-list"></div>
+        <button id="restart-btn" type="button">重新开始</button>
+      </div>
+    </div>
+
+    <div id="location-title" class="hidden"></div>
+    <div id="tooltip" class="hidden"></div>
+    <div id="hp-change" class="hidden"></div>
+  </div>
+
+  <script src="game.js?v=8"></script>
+</body>
+</html>
