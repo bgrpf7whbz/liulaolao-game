@@ -891,10 +891,19 @@ function logEvent(type, detail = {}) {
     } else if (ANALYTICS.apiKey) {
       headers['Authorization'] = `Bearer ${ANALYTICS.apiKey}`;
     }
+    // Supabase 表字段是 snake_case，上传前转换
+    const payload = ANALYTICS.provider === 'supabase' ? {
+      type: event.type,
+      session_id: event.sessionId,
+      node_id: event.nodeId,
+      page_index: event.pageIndex,
+      renqing: event.renqing,
+      detail: event.detail
+    } : event;
     fetch(ANALYTICS.endpoint, {
       method: 'POST',
       headers,
-      body: JSON.stringify(event)
+      body: JSON.stringify(payload)
     }).catch(() => {});
   }
 }
