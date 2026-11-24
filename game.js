@@ -833,9 +833,9 @@ const state = {
 const ANALYTICS = {
   // 方案 A：localStorage（默认，零配置）
   // 方案 B：填入 Supabase/Cloudflare 等远程 endpoint 和 key
-  provider: 'local', // 'local' | 'supabase' | 'generic'
-  endpoint: '',      // Supabase 示例：https://xxxxx.supabase.co/rest/v1/game_events
-  apiKey: '',        // Supabase 的 anon/public key
+  provider: 'supabase', // 'local' | 'supabase' | 'generic'
+  endpoint: 'https://jmdaqowrzsfmahcloksp.supabase.co/rest/v1/game_events',
+  apiKey: 'sb_publishable_sSCEg_e7WuyEpiRvWEHWGg_U3E12Mwu',
   table: 'game_events',
   enabled: true
 };

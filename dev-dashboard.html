@@ -170,8 +170,18 @@
   function loadConfig() {
     try {
       const saved = JSON.parse(localStorage.getItem(CONFIG_KEY) || '{}');
-      currentConfig = { provider: saved.provider || 'local', url: saved.url || '', key: saved.key || '' };
-    } catch (e) {}
+      currentConfig = {
+        provider: saved.provider || 'supabase',
+        url: saved.url || 'https://jmdaqowrzsfmahcloksp.supabase.co',
+        key: saved.key || 'sb_publishable_sSCEg_e7WuyEpiRvWEHWGg_U3E12Mwu'
+      };
+    } catch (e) {
+      currentConfig = {
+        provider: 'supabase',
+        url: 'https://jmdaqowrzsfmahcloksp.supabase.co',
+        key: 'sb_publishable_sSCEg_e7WuyEpiRvWEHWGg_U3E12Mwu'
+      };
+    }
     document.getElementById('data-provider').value = currentConfig.provider;
     document.getElementById('sb-url').value = currentConfig.url;
     document.getElementById('sb-key').value = currentConfig.key;
