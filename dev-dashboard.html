@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>刘姥姥一进荣国府 · 开发者数据面板</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      width: 100%; min-height: 100vh;
+      background: #14100c;
+      font-family: "KaiTi", "STKaiti", "SimSun", "Songti SC", "Noto Serif SC", serif;
+      color: #e8dcc6;
+      padding: 24px;
+    }
+    h1 {
+      font-size: 26px;
+      letter-spacing: 4px;
+      margin-bottom: 8px;
+      color: #f5ecd9;
+    }
+    .subtitle {
+      color: #a89a7a;
+      font-size: 14px;
+      margin-bottom: 28px;
+    }
+    .warn {
+      color: #c62828;
+      font-size: 13px;
+      margin-bottom: 20px;
+    }
+    .section {
+      background: rgba(30, 25, 18, 0.85);
+      border: 1px solid rgba(180, 150, 100, 0.35);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    .section h2 {
+      font-size: 18px;
+      color: #f0e6cf;
+      margin-bottom: 16px;
+      border-bottom: 1px solid rgba(180, 150, 100, 0.25);
+      padding-bottom: 8px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+    }
+    .card {
+      background: rgba(20, 16, 12, 0.7);
+      border: 1px solid rgba(180, 150, 100, 0.25);
+      border-radius: 8px;
+      padding: 16px;
+      text-align: center;
+    }
+    .card .num {
+      font-size: 32px;
+      color: #ffd700;
+      font-weight: bold;
+    }
+    .card .label {
+      font-size: 13px;
+      color: #b0a080;
+      margin-top: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    th, td {
+      padding: 10px 12px;
+      text-align: left;
+      border-bottom: 1px solid rgba(180, 150, 100, 0.2);
+    }
+    th {
+      color: #d4c6a8;
+      font-weight: normal;
+      background: rgba(20, 16, 12, 0.6);
+    }
+    td { color: #e8dcc6; }
+    .bar-wrap {
+      background: rgba(0,0,0,0.35);
+      border-radius: 4px;
+      height: 14px;
+      margin-top: 6px;
+      overflow: hidden;
+    }
+    .bar {
+      height: 100%;
+      background: linear-gradient(90deg, #c9a227, #ffd700);
+      border-radius: 4px;
+    }
+    .login-box {
+      max-width: 360px;
+      margin: 80px auto;
+      background: rgba(30, 25, 18, 0.9);
+      border: 1px solid rgba(180, 150, 100, 0.4);
+      border-radius: 12px;
+      padding: 32px;
+      text-align: center;
+    }
+    .login-box input {
+      width: 100%;
+      padding: 12px;
+      margin: 16px 0;
+      background: rgba(0,0,0,0.3);
+      border: 1px solid rgba(180, 150, 100, 0.4);
+      border-radius: 6px;
+      color: #e8dcc6;
+      font-family: inherit;
+      font-size: 15px;
+    }
+    .login-box button, .btn {
+      padding: 10px 22px;
+      background: rgba(180, 150, 100, 0.25);
+      border: 1px solid rgba(180, 150, 100, 0.6);
+      color: #f5ecd9;
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 14px;
+      transition: background 0.2s;
+    }
+    .login-box button:hover, .btn:hover {
+      background: rgba(180, 150, 100, 0.4);
+    }
+    .hidden { display: none !important; }
+    .actions { margin-bottom: 20px; }
+    .actions .btn { margin-right: 10px; }
+    .empty { color: #888; font-size: 14px; text-align: center; padding: 20px; }
+    .footer {
+      margin-top: 40px;
+      color: #776b52;
+      font-size: 12px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+<div id="login" class="login-box">
+  <h2>开发者数据面板</h2>
+  <p class="subtitle">玩家不可见 · 仅供研究分析</p>
+  <input type="password" id="pwd" placeholder="输入访问密码" autofocus>
+  <button onclick="checkLogin()">进入</button>
+  <p class="warn">此页面无加密防护，仅作简单隐藏。请勿在公开环境暴露地址。</p>
+</div>
+
+<div id="dashboard" class="hidden">
+  <h1>刘姥姥一进荣国府 · 开发者数据面板</h1>
+  <p class="subtitle">数据来源：浏览器 localStorage（当前域名下）</p>
+
+  <div class="actions">
+    <button class="btn" onclick="refreshData()">刷新数据</button>
+    <button class="btn" onclick="exportJSON()">导出 JSON</button>
+    <button class="btn" onclick="clearData()">清空本地数据</button>
+  </div>
+
+  <div class="section">
+    <h2>总体概况</h2>
+    <div class="grid">
+      <div class="card"><div class="num" id="stat-sessions">0</div><div class="label">独立会话</div></div>
+      <div class="card"><div class="num" id="stat-events">0</div><div class="label">总事件数</div></div>
+      <div class="card"><div class="num" id="stat-chooses">0</div><div class="label">选择事件</div></div>
+      <div class="card"><div class="num" id="stat-hotspots">0</div><div class="label">热点点击</div></div>
+      <div class="card"><div class="num" id="stat-terms">0</div><div class="label">词汇点击</div></div>
+      <div class="card"><div class="num" id="stat-avg-dwell">0s</div><div class="label">平均选择停留</div></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>节点访问分布</h2>
+    <div id="node-visits"><p class="empty">暂无数据</p></div>
+  </div>
+
+  <div class="section">
+    <h2>选项选择统计</h2>
+    <div id="choice-stats"><p class="empty">暂无数据</p></div>
+  </div>
+
+  <div class="section">
+    <h2>文化热点点击排行</h2>
+    <div id="hotspot-stats"><p class="empty">暂无数据</p></div>
+  </div>
+
+  <div class="section">
+    <h2>词汇点击排行</h2>
+    <div id="term-stats"><p class="empty">暂无数据</p></div>
+  </div>
+
+  <div class="section">
+    <h2>结局分布</h2>
+    <div id="ending-stats"><p class="empty">暂无数据</p></div>
+  </div>
+
+  <div class="section">
+    <h2>原始事件流水（最近 50 条）</h2>
+    <div id="event-stream"><p class="empty">暂无数据</p></div>
+  </div>
+
+  <p class="footer">注意：localStorage 只能记录同一浏览器、同一域名下的数据。如需收集真实玩家数据，请接入远程 endpoint。</p>
+</div>
+
+<script>
+  const ADMIN_PASSWORD = 'liulaolao2026'; // 简单密码，可修改
+
+  function checkLogin() {
+    const input = document.getElementById('pwd').value.trim();
+    if (input === ADMIN_PASSWORD) {
+      document.getElementById('login').classList.add('hidden');
+      document.getElementById('dashboard').classList.remove('hidden');
+      refreshData();
+    } else {
+      alert('密码错误');
+    }
+  }
+
+  document.getElementById('pwd').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') checkLogin();
+  });
+
+  function getEvents() {
+    try {
+      return JSON.parse(localStorage.getItem('ll_game_events') || '[]');
+    } catch (e) { return []; }
+  }
+
+  function countBy(arr, keyFn) {
+    const map = {};
+    arr.forEach(item => {
+      const k = keyFn(item);
+      if (k === null || k === undefined) return;
+      map[k] = (map[k] || 0) + 1;
+    });
+    return Object.entries(map).sort((a, b) => b[1] - a[1]);
+  }
+
+  function formatTime(ms) {
+    if (ms < 1000) return (ms / 1000).toFixed(1) + 's';
+    return Math.round(ms / 1000) + 's';
+  }
+
+  function renderBarTable(containerId, rows, labelFn, countKey = 1) {
+    const container = document.getElementById(containerId);
+    if (!rows.length) {
+      container.innerHTML = '<p class="empty">暂无数据</p>';
+      return;
+    }
+    const max = Math.max(...rows.map(r => r[countKey]));
+    let html = '<table><thead><tr><th>项目</th><th>次数</th><th>占比</th></tr></thead><tbody>';
+    rows.forEach(([key, count]) => {
+      const pct = max ? Math.round((count / max) * 100) : 0;
+      html += `
+        <tr>
+          <td>${labelFn(key)}</td>
+          <td>${count}</td>
+          <td style="width:50%">
+            <div class="bar-wrap"><div class="bar" style="width:${pct}%"></div></div>
+          </td>
+        </tr>`;
+    });
+    html += '</tbody></table>';
+    container.innerHTML = html;
+  }
+
+  function refreshData() {
+    const events = getEvents();
+    const sessions = new Set(events.filter(e => e.sessionId).map(e => e.sessionId));
+
+    document.getElementById('stat-sessions').textContent = sessions.size;
+    document.getElementById('stat-events').textContent = events.length;
+    document.getElementById('stat-chooses').textContent = events.filter(e => e.type === 'choice_made').length;
+    document.getElementById('stat-hotspots').textContent = events.filter(e => e.type === 'hotspot_click').length;
+    document.getElementById('stat-terms').textContent = events.filter(e => e.type === 'term_click').length;
+
+    const dwells = events.filter(e => e.type === 'choice_made' && e.detail && e.detail.dwellMs > 0).map(e => e.detail.dwellMs);
+    const avgDwell = dwells.length ? dwells.reduce((a, b) => a + b, 0) / dwells.length : 0;
+    document.getElementById('stat-avg-dwell').textContent = formatTime(avgDwell);
+
+    // 节点访问
+    const nodeVisits = countBy(events.filter(e => e.type === 'node_enter'), e => e.detail && e.detail.nodeId ? e.detail.nodeId : e.nodeId);
+    renderBarTable('node-visits', nodeVisits, k => k);
+
+    // 选项选择
+    const choices = events.filter(e => e.type === 'choice_made');
+    const choiceRows = countBy(choices, e => `[${e.nodeId}] ${(e.detail && e.detail.optionText ? e.detail.optionText : '未知').slice(0, 40)}`);
+    renderBarTable('choice-stats', choiceRows, k => k);
+
+    // 热点点击
+    const hotspotRows = countBy(events.filter(e => e.type === 'hotspot_click'), e => e.detail && e.detail.title ? e.detail.title : '未知');
+    renderBarTable('hotspot-stats', hotspotRows, k => k);
+
+    // 词汇点击
+    const termRows = countBy(events.filter(e => e.type === 'term_click'), e => e.detail && e.detail.term ? e.detail.term : '未知');
+    renderBarTable('term-stats', termRows, k => k);
+
+    // 结局
+    const endingRows = countBy(events.filter(e => e.type === 'game_end'), e => e.detail && e.detail.endingType ? e.detail.endingType : '未知');
+    renderBarTable('ending-stats', endingRows, k => k);
+
+    // 事件流水
+    const stream = document.getElementById('event-stream');
+    if (!events.length) {
+      stream.innerHTML = '<p class="empty">暂无数据</p>';
+    } else {
+      let html = '<table><thead><tr><th>时间</th><th>会话</th><th>类型</th><th>节点</th><th>详情</th></tr></thead><tbody>';
+      events.slice().reverse().slice(0, 50).forEach(e => {
+        const time = new Date(e.timestamp).toLocaleString('zh-CN');
+        const detail = e.detail ? JSON.stringify(e.detail).slice(0, 120) : '{}';
+        html += `<tr><td>${time}</td><td>${(e.sessionId || '').slice(0, 12)}...</td><td>${e.type}</td><td>${e.nodeId || '-'}</td><td>${detail}</td></tr>`;
+      });
+      html += '</tbody></table>';
+      stream.innerHTML = html;
+    }
+  }
+
+  function exportJSON() {
+    const events = getEvents();
+    const blob = new Blob([JSON.stringify(events, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `liulaolao-events-${Date.now()}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function clearData() {
+    if (!confirm('确定清空本地所有记录吗？不可恢复。')) return;
+    localStorage.removeItem('ll_game_events');
+    localStorage.removeItem('ll_game_session_id');
+    refreshData();
+  }
+</script>
+
+</body>
+</html>

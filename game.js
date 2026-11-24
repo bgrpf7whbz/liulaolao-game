@@ -828,6 +828,117 @@ const state = {
 };
 
 // ============================
+// 开发者数据分析（玩家不可见）
+// ============================
+const ANALYTICS = {
+  // 方案 A：localStorage（默认，零配置）
+  // 方案 B：填入 Supabase/Cloudflare 等远程 endpoint 和 key
+  endpoint: '',
+  apiKey: '',
+  table: 'game_events',
+  enabled: true
+};
+
+let sessionId = localStorage.getItem('ll_game_session_id');
+if (!sessionId) {
+  sessionId = 'sess_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8);
+  localStorage.setItem('ll_game_session_id', sessionId);
+}
+
+function getStoredEvents() {
+  try {
+    return JSON.parse(localStorage.getItem('ll_game_events') || '[]');
+  } catch (e) {
+    return [];
+  }
+}
+
+function storeEvent(event) {
+  if (!ANALYTICS.enabled) return;
+  const events = getStoredEvents();
+  events.push(event);
+  try {
+    localStorage.setItem('ll_game_events', JSON.stringify(events.slice(-3000)));
+  } catch (e) {
+    // 存储满了就清空旧的
+    localStorage.setItem('ll_game_events', JSON.stringify([event]));
+  }
+}
+
+function logEvent(type, detail = {}) {
+  if (!ANALYTICS.enabled) return;
+  const event = {
+    type,
+    sessionId,
+    timestamp: Date.now(),
+    nodeId: state.currentNodeId || null,
+    pageIndex: state.currentPageIndex || 0,
+    renqing: state.renqing,
+    detail
+  };
+
+  storeEvent(event);
+
+  if (ANALYTICS.endpoint) {
+    fetch(ANALYTICS.endpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': ANALYTICS.apiKey ? `Bearer ${ANALYTICS.apiKey}` : ''
+      },
+      body: JSON.stringify(event)
+    }).catch(() => {});
+  }
+}
+
+let nodeEnterTime = 0;
+let pageEnterTime = 0;
+
+function recordNodeEnter(nodeId) {
+  nodeEnterTime = Date.now();
+  pageEnterTime = nodeEnterTime;
+  logEvent('node_enter', { nodeId });
+}
+
+function recordPageView(pageIndex, speaker, textPreview) {
+  pageEnterTime = Date.now();
+  logEvent('page_view', {
+    pageIndex,
+    speaker,
+    textPreview: textPreview ? textPreview.slice(0, 80) : ''
+  });
+}
+
+function recordChoice(option, dwellMs) {
+  logEvent('choice_made', {
+    optionId: option.id,
+    optionText: option.text ? option.text.slice(0, 120) : '',
+    renqingCost: option.renqingCost || 0,
+    renqingReason: option.renqingReason || '',
+    dwellMs
+  });
+}
+
+function recordHotspotClick(hotspot) {
+  logEvent('hotspot_click', {
+    hotspotId: hotspot.id,
+    title: hotspot.title
+  });
+}
+
+function recordTermClick(term) {
+  logEvent('term_click', { term });
+}
+
+function recordGameStart() {
+  logEvent('game_start', { userAgent: navigator.userAgent });
+}
+
+function recordGameEnd(endingType, finalRenqing) {
+  logEvent('game_end', { endingType, finalRenqing });
+}
+
+// ============================
 // DOM 引用
 // ============================
 const stage = document.getElementById('stage');
@@ -1085,6 +1196,7 @@ function renderHotspots(hotspots) {
 }
 
 function showHotspotCard(hotspot) {
+  recordHotspotClick(hotspot);
   state.discoveredHotspots.add(hotspot.id);
   updateCounts();
   renderManual();
@@ -1143,6 +1255,9 @@ function renderChoices(options) {
 }
 
 function selectOption(option) {
+  const dwellMs = pageEnterTime ? Date.now() - pageEnterTime : 0;
+  recordChoice(option, dwellMs);
+
   const cost = option.renqingCost || 0;
   if (cost !== 0) {
     state.renqing -= cost;
@@ -1190,6 +1305,7 @@ function getCurrentPage() {
 function renderCurrentPage() {
   const page = getCurrentPage();
   if (!page) return;
+  recordPageView(state.currentPageIndex, page.speaker, page.text);
   showDialog(page.speaker, page.text);
 }
 
@@ -1247,6 +1363,8 @@ async function renderNode(id) {
     console.error('未知节点：', id);
     return;
   }
+
+  recordNodeEnter(id);
 
   hideHotspotCard();
   hideTooltip();
@@ -1385,6 +1503,8 @@ function showSettlement() {
     rating = '「狼狈而归」——你虽走到了最后，人情却已用尽。这二十两银子，拿得并不体面。';
   }
 
+  recordGameEnd(title, rq);
+
   settlementScreen.querySelector('h2').textContent = title;
   settlementCount.textContent = `你这一趟看见了 ${count}/7 个文化细节，人情值剩余 ${Math.max(0, rq)}。`;
   settlementRating.textContent = rating;
@@ -1440,6 +1560,7 @@ async function startGame() {
   updateCounts();
   updateHP();
   renderManual();
+  recordGameStart();
   await renderNode('node_1');
 }
 
@@ -1449,6 +1570,7 @@ async function startGame() {
 dialogBox.addEventListener('click', async (e) => {
   if (e.target.classList.contains('term')) {
     e.stopPropagation();
+    recordTermClick(e.target.dataset.term);
     const rect = e.target.getBoundingClientRect();
     const stageRect = stage.getBoundingClientRect();
     showTooltip(e.target.dataset.term, rect.left - stageRect.left, rect.top - stageRect.top);
@@ -1461,6 +1583,7 @@ dialogBox.addEventListener('click', async (e) => {
 stage.addEventListener('click', (e) => {
   if (e.target.classList.contains('term')) {
     e.stopPropagation();
+    recordTermClick(e.target.dataset.term);
     const rect = e.target.getBoundingClientRect();
     const stageRect = stage.getBoundingClientRect();
     showTooltip(e.target.dataset.term, rect.left - stageRect.left, rect.top - stageRect.top);
