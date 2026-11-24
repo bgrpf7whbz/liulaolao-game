@@ -833,8 +833,9 @@ const state = {
 const ANALYTICS = {
   // 方案 A：localStorage（默认，零配置）
   // 方案 B：填入 Supabase/Cloudflare 等远程 endpoint 和 key
-  endpoint: '',
-  apiKey: '',
+  provider: 'local', // 'local' | 'supabase' | 'generic'
+  endpoint: '',      // Supabase 示例：https://xxxxx.supabase.co/rest/v1/game_events
+  apiKey: '',        // Supabase 的 anon/public key
   table: 'game_events',
   enabled: true
 };
@@ -880,12 +881,19 @@ function logEvent(type, detail = {}) {
   storeEvent(event);
 
   if (ANALYTICS.endpoint) {
+    const headers = {
+      'Content-Type': 'application/json'
+    };
+    if (ANALYTICS.provider === 'supabase' && ANALYTICS.apiKey) {
+      headers['apikey'] = ANALYTICS.apiKey;
+      headers['Authorization'] = `Bearer ${ANALYTICS.apiKey}`;
+      headers['Prefer'] = 'return=minimal';
+    } else if (ANALYTICS.apiKey) {
+      headers['Authorization'] = `Bearer ${ANALYTICS.apiKey}`;
+    }
     fetch(ANALYTICS.endpoint, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': ANALYTICS.apiKey ? `Bearer ${ANALYTICS.apiKey}` : ''
-      },
+      headers,
       body: JSON.stringify(event)
     }).catch(() => {});
   }

@@ -19,16 +19,10 @@
       margin-bottom: 8px;
       color: #f5ecd9;
     }
-    .subtitle {
-      color: #a89a7a;
-      font-size: 14px;
-      margin-bottom: 28px;
-    }
-    .warn {
-      color: #c62828;
-      font-size: 13px;
-      margin-bottom: 20px;
-    }
+    h2 { font-size: 18px; color: #f0e6cf; margin-bottom: 16px; border-bottom: 1px solid rgba(180, 150, 100, 0.25); padding-bottom: 8px; }
+    .subtitle { color: #a89a7a; font-size: 14px; margin-bottom: 28px; }
+    .warn { color: #c62828; font-size: 13px; margin-bottom: 20px; }
+    .hint { color: #887b5e; font-size: 12px; margin-top: 6px; }
     .section {
       background: rgba(30, 25, 18, 0.85);
       border: 1px solid rgba(180, 150, 100, 0.35);
@@ -36,18 +30,7 @@
       padding: 20px;
       margin-bottom: 20px;
     }
-    .section h2 {
-      font-size: 18px;
-      color: #f0e6cf;
-      margin-bottom: 16px;
-      border-bottom: 1px solid rgba(180, 150, 100, 0.25);
-      padding-bottom: 8px;
-    }
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 16px;
-    }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; }
     .card {
       background: rgba(20, 16, 12, 0.7);
       border: 1px solid rgba(180, 150, 100, 0.25);
@@ -55,88 +38,45 @@
       padding: 16px;
       text-align: center;
     }
-    .card .num {
-      font-size: 32px;
-      color: #ffd700;
-      font-weight: bold;
-    }
-    .card .label {
-      font-size: 13px;
-      color: #b0a080;
-      margin-top: 6px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 14px;
-    }
-    th, td {
-      padding: 10px 12px;
-      text-align: left;
-      border-bottom: 1px solid rgba(180, 150, 100, 0.2);
-    }
-    th {
-      color: #d4c6a8;
-      font-weight: normal;
-      background: rgba(20, 16, 12, 0.6);
-    }
+    .card .num { font-size: 32px; color: #ffd700; font-weight: bold; }
+    .card .label { font-size: 13px; color: #b0a080; margin-top: 6px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid rgba(180, 150, 100, 0.2); }
+    th { color: #d4c6a8; font-weight: normal; background: rgba(20, 16, 12, 0.6); }
     td { color: #e8dcc6; }
-    .bar-wrap {
-      background: rgba(0,0,0,0.35);
-      border-radius: 4px;
-      height: 14px;
-      margin-top: 6px;
-      overflow: hidden;
-    }
-    .bar {
-      height: 100%;
-      background: linear-gradient(90deg, #c9a227, #ffd700);
-      border-radius: 4px;
-    }
+    .bar-wrap { background: rgba(0,0,0,0.35); border-radius: 4px; height: 14px; margin-top: 6px; overflow: hidden; }
+    .bar { height: 100%; background: linear-gradient(90deg, #c9a227, #ffd700); border-radius: 4px; }
     .login-box {
-      max-width: 360px;
-      margin: 80px auto;
+      max-width: 360px; margin: 80px auto;
       background: rgba(30, 25, 18, 0.9);
       border: 1px solid rgba(180, 150, 100, 0.4);
-      border-radius: 12px;
-      padding: 32px;
-      text-align: center;
+      border-radius: 12px; padding: 32px; text-align: center;
     }
-    .login-box input {
-      width: 100%;
-      padding: 12px;
-      margin: 16px 0;
+    input, select, textarea {
+      width: 100%; padding: 10px 12px; margin: 8px 0;
       background: rgba(0,0,0,0.3);
       border: 1px solid rgba(180, 150, 100, 0.4);
-      border-radius: 6px;
-      color: #e8dcc6;
-      font-family: inherit;
-      font-size: 15px;
+      border-radius: 6px; color: #e8dcc6;
+      font-family: inherit; font-size: 14px;
     }
-    .login-box button, .btn {
+    button, .btn {
       padding: 10px 22px;
       background: rgba(180, 150, 100, 0.25);
       border: 1px solid rgba(180, 150, 100, 0.6);
-      color: #f5ecd9;
-      border-radius: 6px;
-      cursor: pointer;
-      font-family: inherit;
-      font-size: 14px;
+      color: #f5ecd9; border-radius: 6px;
+      cursor: pointer; font-family: inherit; font-size: 14px;
       transition: background 0.2s;
     }
-    .login-box button:hover, .btn:hover {
-      background: rgba(180, 150, 100, 0.4);
-    }
+    button:hover, .btn:hover { background: rgba(180, 150, 100, 0.4); }
     .hidden { display: none !important; }
     .actions { margin-bottom: 20px; }
-    .actions .btn { margin-right: 10px; }
+    .actions .btn { margin-right: 10px; margin-bottom: 8px; }
     .empty { color: #888; font-size: 14px; text-align: center; padding: 20px; }
-    .footer {
-      margin-top: 40px;
-      color: #776b52;
-      font-size: 12px;
-      text-align: center;
-    }
+    .footer { margin-top: 40px; color: #776b52; font-size: 12px; text-align: center; }
+    .config-row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 10px; }
+    .config-row label { min-width: 90px; color: #c4b698; font-size: 14px; }
+    .config-row input { flex: 1; min-width: 200px; margin: 0; }
+    .status { color: #66bb6a; font-size: 13px; margin-left: 10px; }
   </style>
 </head>
 <body>
@@ -151,7 +91,34 @@
 
 <div id="dashboard" class="hidden">
   <h1>刘姥姥一进荣国府 · 开发者数据面板</h1>
-  <p class="subtitle">数据来源：浏览器 localStorage（当前域名下）</p>
+  <p class="subtitle">切换 localStorage / Supabase 以查看不同来源的数据</p>
+
+  <div class="section">
+    <h2>数据源配置</h2>
+    <div class="config-row">
+      <label>数据来源</label>
+      <select id="data-provider" onchange="onProviderChange()">
+        <option value="local">localStorage（本机测试）</option>
+        <option value="supabase">Supabase（真实玩家数据）</option>
+      </select>
+    </div>
+    <div id="supabase-config" class="hidden">
+      <div class="config-row">
+        <label>Supabase URL</label>
+        <input type="text" id="sb-url" placeholder="https://xxxxx.supabase.co">
+      </div>
+      <div class="config-row">
+        <label>anon key</label>
+        <input type="password" id="sb-key" placeholder="eyJ...">
+      </div>
+      <p class="hint">填写后点击「保存配置」，数据会从 Supabase 读取。</p>
+    </div>
+    <div class="actions">
+      <button class="btn" onclick="saveConfig()">保存配置</button>
+      <button class="btn" onclick="loadConfig()">恢复默认</button>
+      <span id="config-status" class="status"></span>
+    </div>
+  </div>
 
   <div class="actions">
     <button class="btn" onclick="refreshData()">刷新数据</button>
@@ -171,58 +138,87 @@
     </div>
   </div>
 
-  <div class="section">
-    <h2>节点访问分布</h2>
-    <div id="node-visits"><p class="empty">暂无数据</p></div>
-  </div>
+  <div class="section"><h2>节点访问分布</h2><div id="node-visits"><p class="empty">暂无数据</p></div></div>
+  <div class="section"><h2>选项选择统计</h2><div id="choice-stats"><p class="empty">暂无数据</p></div></div>
+  <div class="section"><h2>文化热点点击排行</h2><div id="hotspot-stats"><p class="empty">暂无数据</p></div></div>
+  <div class="section"><h2>词汇点击排行</h2><div id="term-stats"><p class="empty">暂无数据</p></div></div>
+  <div class="section"><h2>结局分布</h2><div id="ending-stats"><p class="empty">暂无数据</p></div></div>
+  <div class="section"><h2>原始事件流水（最近 50 条）</h2><div id="event-stream"><p class="empty">暂无数据</p></div></div>
 
-  <div class="section">
-    <h2>选项选择统计</h2>
-    <div id="choice-stats"><p class="empty">暂无数据</p></div>
-  </div>
-
-  <div class="section">
-    <h2>文化热点点击排行</h2>
-    <div id="hotspot-stats"><p class="empty">暂无数据</p></div>
-  </div>
-
-  <div class="section">
-    <h2>词汇点击排行</h2>
-    <div id="term-stats"><p class="empty">暂无数据</p></div>
-  </div>
-
-  <div class="section">
-    <h2>结局分布</h2>
-    <div id="ending-stats"><p class="empty">暂无数据</p></div>
-  </div>
-
-  <div class="section">
-    <h2>原始事件流水（最近 50 条）</h2>
-    <div id="event-stream"><p class="empty">暂无数据</p></div>
-  </div>
-
-  <p class="footer">注意：localStorage 只能记录同一浏览器、同一域名下的数据。如需收集真实玩家数据，请接入远程 endpoint。</p>
+  <p class="footer">localStorage 只能记录同一浏览器、同一域名下的数据。接入 Supabase 后可收集真实玩家数据。</p>
 </div>
 
 <script>
-  const ADMIN_PASSWORD = 'liulaolao2026'; // 简单密码，可修改
+  const ADMIN_PASSWORD = 'liulaolao2026';
+  const CONFIG_KEY = 'll_dashboard_config';
+
+  let currentConfig = { provider: 'local', url: '', key: '' };
 
   function checkLogin() {
     const input = document.getElementById('pwd').value.trim();
     if (input === ADMIN_PASSWORD) {
       document.getElementById('login').classList.add('hidden');
       document.getElementById('dashboard').classList.remove('hidden');
+      loadConfig();
       refreshData();
     } else {
       alert('密码错误');
     }
   }
+  document.getElementById('pwd').addEventListener('keydown', (e) => { if (e.key === 'Enter') checkLogin(); });
 
-  document.getElementById('pwd').addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') checkLogin();
-  });
+  function loadConfig() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(CONFIG_KEY) || '{}');
+      currentConfig = { provider: saved.provider || 'local', url: saved.url || '', key: saved.key || '' };
+    } catch (e) {}
+    document.getElementById('data-provider').value = currentConfig.provider;
+    document.getElementById('sb-url').value = currentConfig.url;
+    document.getElementById('sb-key').value = currentConfig.key;
+    onProviderChange();
+  }
 
-  function getEvents() {
+  function saveConfig() {
+    currentConfig = {
+      provider: document.getElementById('data-provider').value,
+      url: document.getElementById('sb-url').value.trim(),
+      key: document.getElementById('sb-key').value.trim()
+    };
+    localStorage.setItem(CONFIG_KEY, JSON.stringify(currentConfig));
+    const status = document.getElementById('config-status');
+    status.textContent = '已保存';
+    setTimeout(() => status.textContent = '', 2000);
+    refreshData();
+  }
+
+  function onProviderChange() {
+    const provider = document.getElementById('data-provider').value;
+    document.getElementById('supabase-config').classList.toggle('hidden', provider !== 'supabase');
+  }
+
+  async function getEvents() {
+    if (currentConfig.provider === 'supabase') {
+      if (!currentConfig.url || !currentConfig.key) {
+        alert('请先填写 Supabase URL 和 anon key');
+        return [];
+      }
+      const res = await fetch(`${currentConfig.url.replace(/\/$/, '')}/rest/v1/game_events?select=*&order=created_at.desc`, {
+        headers: { 'apikey': currentConfig.key, 'Authorization': `Bearer ${currentConfig.key}` }
+      });
+      if (!res.ok) throw new Error('Supabase 请求失败：' + res.status);
+      const data = await res.json();
+      // Supabase 字段名是 snake_case，转成前端用的 camelCase
+      return data.map(row => ({
+        type: row.type,
+        sessionId: row.session_id,
+        nodeId: row.node_id,
+        pageIndex: row.page_index,
+        renqing: row.renqing,
+        detail: row.detail,
+        timestamp: row.created_at ? new Date(row.created_at).getTime() : Date.now()
+      }));
+    }
+    // localStorage
     try {
       return JSON.parse(localStorage.getItem('ll_game_events') || '[]');
     } catch (e) { return []; }
@@ -245,31 +241,27 @@
 
   function renderBarTable(containerId, rows, labelFn, countKey = 1) {
     const container = document.getElementById(containerId);
-    if (!rows.length) {
-      container.innerHTML = '<p class="empty">暂无数据</p>';
-      return;
-    }
+    if (!rows.length) { container.innerHTML = '<p class="empty">暂无数据</p>'; return; }
     const max = Math.max(...rows.map(r => r[countKey]));
     let html = '<table><thead><tr><th>项目</th><th>次数</th><th>占比</th></tr></thead><tbody>';
     rows.forEach(([key, count]) => {
       const pct = max ? Math.round((count / max) * 100) : 0;
-      html += `
-        <tr>
-          <td>${labelFn(key)}</td>
-          <td>${count}</td>
-          <td style="width:50%">
-            <div class="bar-wrap"><div class="bar" style="width:${pct}%"></div></div>
-          </td>
-        </tr>`;
+      html += `<tr><td>${labelFn(key)}</td><td>${count}</td><td style="width:50%"><div class="bar-wrap"><div class="bar" style="width:${pct}%"></div></div></td></tr>`;
     });
     html += '</tbody></table>';
     container.innerHTML = html;
   }
 
-  function refreshData() {
-    const events = getEvents();
-    const sessions = new Set(events.filter(e => e.sessionId).map(e => e.sessionId));
+  async function refreshData() {
+    let events = [];
+    try {
+      events = await getEvents();
+    } catch (e) {
+      alert('获取数据失败：' + e.message);
+      return;
+    }
 
+    const sessions = new Set(events.filter(e => e.sessionId).map(e => e.sessionId));
     document.getElementById('stat-sessions').textContent = sessions.size;
     document.getElementById('stat-events').textContent = events.length;
     document.getElementById('stat-chooses').textContent = events.filter(e => e.type === 'choice_made').length;
@@ -280,28 +272,22 @@
     const avgDwell = dwells.length ? dwells.reduce((a, b) => a + b, 0) / dwells.length : 0;
     document.getElementById('stat-avg-dwell').textContent = formatTime(avgDwell);
 
-    // 节点访问
     const nodeVisits = countBy(events.filter(e => e.type === 'node_enter'), e => e.detail && e.detail.nodeId ? e.detail.nodeId : e.nodeId);
     renderBarTable('node-visits', nodeVisits, k => k);
 
-    // 选项选择
     const choices = events.filter(e => e.type === 'choice_made');
     const choiceRows = countBy(choices, e => `[${e.nodeId}] ${(e.detail && e.detail.optionText ? e.detail.optionText : '未知').slice(0, 40)}`);
     renderBarTable('choice-stats', choiceRows, k => k);
 
-    // 热点点击
     const hotspotRows = countBy(events.filter(e => e.type === 'hotspot_click'), e => e.detail && e.detail.title ? e.detail.title : '未知');
     renderBarTable('hotspot-stats', hotspotRows, k => k);
 
-    // 词汇点击
     const termRows = countBy(events.filter(e => e.type === 'term_click'), e => e.detail && e.detail.term ? e.detail.term : '未知');
     renderBarTable('term-stats', termRows, k => k);
 
-    // 结局
     const endingRows = countBy(events.filter(e => e.type === 'game_end'), e => e.detail && e.detail.endingType ? e.detail.endingType : '未知');
     renderBarTable('ending-stats', endingRows, k => k);
 
-    // 事件流水
     const stream = document.getElementById('event-stream');
     if (!events.length) {
       stream.innerHTML = '<p class="empty">暂无数据</p>';
@@ -318,14 +304,12 @@
   }
 
   function exportJSON() {
-    const events = getEvents();
-    const blob = new Blob([JSON.stringify(events, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `liulaolao-events-${Date.now()}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
+    getEvents().then(events => {
+      const blob = new Blob([JSON.stringify(events, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = `liulaolao-events-${Date.now()}.json`; a.click(); URL.revokeObjectURL(url);
+    });
   }
 
   function clearData() {
