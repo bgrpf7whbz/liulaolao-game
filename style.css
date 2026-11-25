@@ -1311,6 +1311,21 @@ html, body {
   border: 1px solid rgba(139, 69, 19, 0.15);
 }
 
+.share-card-list {
+  margin-bottom: 14px;
+  text-align: left;
+  background: rgba(255, 255, 255, 0.4);
+  border-radius: 10px;
+  padding: 10px;
+  border: 1px solid rgba(139, 69, 19, 0.15);
+}
+
+.share-card-list p {
+  font-size: 13px;
+  color: #5a4a35;
+  line-height: 1.6;
+}
+
 .share-relation-svg {
   width: 100%;
   height: auto;

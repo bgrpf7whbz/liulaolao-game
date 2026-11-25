@@ -2042,6 +2042,17 @@ function renderShareSummary(title, amount, count) {
     `<div class="share-char"><img src="${n.portrait}" alt="${n.name}" crossorigin="anonymous" onerror="this.style.display='none'"><span>${n.name}</span></div>`
   ).join('');
 
+  const allHotspots = [];
+  Object.values(storyData).forEach((node) => {
+    (node.hotspots || []).forEach((h) => allHotspots.push(h));
+  });
+  const hotspotNames = allHotspots
+    .filter((h) => state.discoveredHotspots.has(h.id))
+    .map((h) => h.title);
+  const hotspotText = hotspotNames.length ? hotspotNames.join('、') : '本次没有发现文化热点';
+  const termNames = Array.from(state.unlockedTerms);
+  const termText = termNames.length ? termNames.join('、') : '本次没有点击高亮词';
+
   summary.innerHTML = `
     <div class="share-card-inner">
       <div class="share-card-header">《红楼梦》第六回</div>
@@ -2060,6 +2071,14 @@ function renderShareSummary(title, amount, count) {
       <div class="share-card-chars">
         <div class="share-card-chars-title">点亮的人物</div>
         <div class="share-card-chars-list">${charAvatars}</div>
+      </div>
+      <div class="share-card-list">
+        <div class="share-card-chars-title">解锁的文化热点</div>
+        <p>${hotspotText}</p>
+      </div>
+      <div class="share-card-list">
+        <div class="share-card-chars-title">本次学到的高亮词</div>
+        <p>${termText}</p>
       </div>
       <div class="share-card-footer">互动叙事 · 语言学习</div>
     </div>
@@ -2276,6 +2295,46 @@ async function generateShareCanvas(title, amount, count) {
     ctx.textAlign = 'center';
     ctx.fillText(n.name, x, avatarY + avatarSize + 20);
   });
+
+  const allHotspots = [];
+  Object.values(storyData).forEach((node) => {
+    (node.hotspots || []).forEach((h) => allHotspots.push(h));
+  });
+  const hotspotNames = allHotspots
+    .filter((h) => state.discoveredHotspots.has(h.id))
+    .map((h) => h.title);
+  const termNames = Array.from(state.unlockedTerms);
+
+  function drawWrappedLabel(y, label, items) {
+    ctx.fillStyle = '#6b4c2a';
+    ctx.font = '20px KaiTi, STKaiti, serif';
+    ctx.textAlign = 'left';
+    ctx.fillText(label, 70, y);
+    ctx.fillStyle = '#5a4a35';
+    ctx.font = '17px KaiTi, STKaiti, sans-serif';
+    const text = items.length ? items.join('、') : '本次没有记录';
+    const maxWidth = W - 140;
+    const words = text.split('、');
+    let line = '';
+    let lineY = y + 28;
+    words.forEach((word, idx) => {
+      const test = line + (line ? '、' : '') + word;
+      const metrics = ctx.measureText(test);
+      if (metrics.width > maxWidth && line) {
+        ctx.fillText(line, 70, lineY);
+        line = word;
+        lineY += 26;
+      } else {
+        line = test;
+      }
+    });
+    if (line) ctx.fillText(line, 70, lineY);
+    return lineY;
+  }
+
+  let listY = avatarY + avatarSize + 50;
+  listY = drawWrappedLabel(listY, '解锁的文化热点', hotspotNames) + 30;
+  drawWrappedLabel(listY, '本次学到的高亮词', termNames);
 
   ctx.fillStyle = '#8c7a60';
   ctx.font = '18px KaiTi, STKaiti, serif';
