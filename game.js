@@ -72,12 +72,12 @@ const portraitMap = {
 // ============================
 const relationshipGraph = {
   nodes: [
-    { id: 'liulaolao', name: '刘姥姥', x: 0.5, y: 0.78, portrait: 'assets/ch_liu_laolao_before.png', intro: '六十多岁的乡下老太太。这一趟，你就是她。', unlocked: true },
-    { id: 'baner', name: '板儿', x: 0.3, y: 0.78, portrait: 'assets/ch_liulaolao_baner.png', intro: '刘姥姥的外孙，五六岁，跟她一起去荣国府。', unlocked: false },
-    { id: 'gouer', name: '狗儿', x: 0.7, y: 0.78, portrait: 'assets/ch_gouer.png', intro: '刘姥姥的女婿。家里穷，爱生闷气。', unlocked: false },
-    { id: 'zhou', name: '周瑞家的', x: 0.2, y: 0.45, portrait: 'assets/ch_zhou_rui_wife.png', intro: '贾家的女仆。她丈夫受过狗儿父亲的帮助，所以愿意帮刘姥姥。', unlocked: false },
-    { id: 'ping', name: '平儿', x: 0.5, y: 0.22, portrait: 'assets/ch_ping_er.png', intro: '王熙凤身边的大丫头。年轻、漂亮、穿得很好。', unlocked: false },
-    { id: 'xifeng', name: '王熙凤', x: 0.8, y: 0.22, portrait: 'assets/ch_wang_xifeng.png', intro: '贾家现在管事的年轻女人，不到二十岁，特别能干。', unlocked: false }
+    { id: 'liulaolao', name: '刘姥姥', x: 0.5, y: 0.72, portrait: 'assets/ch_liu_laolao_before.png', intro: '六十多岁的乡下老太太。这一趟，你就是她。', unlocked: true },
+    { id: 'baner', name: '板儿', x: 0.20, y: 0.72, portrait: 'assets/ch_liulaolao_baner.png', intro: '刘姥姥的外孙，五六岁，跟她一起去荣国府。', unlocked: false },
+    { id: 'gouer', name: '狗儿', x: 0.80, y: 0.72, portrait: 'assets/ch_gouer.png', intro: '刘姥姥的女婿。家里穷，爱生闷气。', unlocked: false },
+    { id: 'zhou', name: '周瑞家的', x: 0.18, y: 0.42, portrait: 'assets/ch_zhou_rui_wife.png', intro: '贾家的女仆。她丈夫受过狗儿父亲的帮助，所以愿意帮刘姥姥。', unlocked: false },
+    { id: 'ping', name: '平儿', x: 0.50, y: 0.18, portrait: 'assets/ch_ping_er.png', intro: '王熙凤身边的大丫头。年轻、漂亮、穿得很好。', unlocked: false },
+    { id: 'xifeng', name: '王熙凤', x: 0.82, y: 0.18, portrait: 'assets/ch_wang_xifeng.png', intro: '贾家现在管事的年轻女人，不到二十岁，特别能干。', unlocked: false }
   ],
   edges: [
     { from: 'liulaolao', to: 'baner', label: '祖孙' },
@@ -145,6 +145,67 @@ function checkAllHotspotsQuest() {
   if (state.discoveredHotspots.size >= 7) {
     completeQuest('collect_all');
   }
+}
+
+function pushHistory(nodeId) {
+  state.historyStack.push({
+    nodeId,
+    pageIndex: 0,
+    renqing: state.renqing,
+    discoveredHotspots: Array.from(state.discoveredHotspots),
+    unlockedTerms: Array.from(state.unlockedTerms),
+    unlockedCharacters: Array.from(state.unlockedCharacters),
+    quests: quests.map((q) => ({ id: q.id, completed: q.completed })),
+    characterDeeds: relationshipGraph.nodes
+      .filter((n) => n.deed)
+      .map((n) => ({ id: n.id, deed: n.deed }))
+  });
+  updateBackButton();
+}
+
+function canGoBack() {
+  return state.historyStack.length > 0;
+}
+
+function updateBackButton() {
+  if (!backBtn) return;
+  backBtn.disabled = !canGoBack();
+  backBtn.style.opacity = canGoBack() ? '1' : '0.35';
+  backBtn.style.cursor = canGoBack() ? 'pointer' : 'not-allowed';
+}
+
+function goBack() {
+  if (!canGoBack()) return;
+  const snap = state.historyStack.pop();
+
+  state.currentNodeId = snap.nodeId;
+  state.currentPageIndex = snap.pageIndex;
+  state.renqing = snap.renqing;
+  state.discoveredHotspots = new Set(snap.discoveredHotspots);
+  state.unlockedTerms = new Set(snap.unlockedTerms);
+  state.unlockedCharacters = new Set(snap.unlockedCharacters);
+  state.feedbackMode = false;
+  state.lastFeedback = null;
+  state.lastConvergeTo = null;
+  state.pendingErrorModal = null;
+
+  quests.forEach((q) => {
+    const s = snap.quests.find((x) => x.id === q.id);
+    q.completed = s ? s.completed : false;
+  });
+
+  relationshipGraph.nodes.forEach((n) => delete n.deed);
+  (snap.characterDeeds || []).forEach((d) => {
+    const n = relationshipGraph.nodes.find((x) => x.id === d.id);
+    if (n) n.deed = d.deed;
+  });
+
+  updateCounts();
+  updateHP();
+  updateBackButton();
+  renderManual();
+  renderRelationPanel();
+  renderNode(snap.nodeId, { skipHistory: true });
 }
 
 // ============================
@@ -679,17 +740,23 @@ const storyData = {
     "bg": "assets/bg_n14_ending_gate_lookback.png",
     "camera": "wide",
     "transition": "page-flip",
-    "pages": [
-      { "speaker": "旁白", "text": "刘姥姥揣着银子，带着板儿出来了。" },
-      { "speaker": "旁白", "text": "走到院子里，她回头看了一眼那扇门。" },
-      { "speaker": "刘姥姥", "text": "二十两银子……够我们一家过一年了。" },
-      { "speaker": "旁白", "text": "她想起刚才那一顿饭——满满一桌子菜，动了几样就撤了。" },
-      { "speaker": "旁白", "text": "想起那个差点认错的平姑娘。想起那口会自己响的匣子。" },
-      { "speaker": "板儿", "text": "姥姥，我们下次还来吗？" },
-      { "speaker": "刘姥姥", "text": "……先回家吧。" },
-      { "speaker": "旁白", "text": "出了荣府的门，风比来时更冷。可是心里，好像是暖的。" },
-      { "speaker": "旁白", "text": "刘姥姥一进荣国府的故事，到这里就讲完了。可是她和贾府的来往，才刚开始。" }
-    ],
+    "dynamicPages": true,
+    "pages": function() {
+      const amount = getSilverAmount();
+      const unit = getSilverText(amount);
+      const feeling = amount >= 20 ? '够我们一家过一年了' : amount >= 15 ? '能换不少米面炭火' : amount >= 10 ? '好歹能撑过这个冬' : '虽不多，也够救几天急';
+      return [
+        { "speaker": "旁白", "text": "刘姥姥揣着银子，带着板儿出来了。" },
+        { "speaker": "旁白", "text": "走到院子里，她回头看了一眼那扇门。" },
+        { "speaker": "刘姥姥", "text": `${unit}银子……${feeling}。` },
+        { "speaker": "旁白", "text": "她想起刚才那一顿饭——满满一桌子菜，动了几样就撤了。" },
+        { "speaker": "旁白", "text": "想起那个差点认错的平姑娘。想起那口会自己响的匣子。" },
+        { "speaker": "板儿", "text": "姥姥，我们下次还来吗？" },
+        { "speaker": "刘姥姥", "text": "……先回家吧。" },
+        { "speaker": "旁白", "text": "出了荣府的门，风比来时更冷。可是心里，好像是暖的。" },
+        { "speaker": "旁白", "text": "刘姥姥一进荣国府的故事，到这里就讲完了。可是她和贾府的来往，才刚开始。" }
+      ];
+    },
     "nextId": "node_15",
     "hotspots": []
   },
@@ -755,7 +822,8 @@ const state = {
   lastFeedback: null,
   lastConvergeTo: null,
   prologueStep: -1,
-  pendingErrorModal: null
+  pendingErrorModal: null,
+  historyStack: []
 };
 
 // 默认解锁主角
@@ -953,6 +1021,8 @@ const relationSvg = document.getElementById('relation-svg');
 const relationList = document.getElementById('relation-list');
 const closeRelation = document.getElementById('close-relation');
 const relationBtn = document.getElementById('relation-btn');
+const coverRelationBtn = document.getElementById('cover-relation-btn');
+const backBtn = document.getElementById('back-btn');
 const manualTabs = document.querySelectorAll('.manual-tab');
 const manualSections = document.querySelectorAll('.manual-section');
 const shareBtn = document.getElementById('share-btn');
@@ -1162,12 +1232,16 @@ function renderRelationPanel() {
   if (!relationSvg) return;
   relationSvg.innerHTML = '';
   const w = relationSvg.clientWidth || 600;
-  const h = relationSvg.clientHeight || 360;
+  const h = relationSvg.clientHeight || 340;
   const svgNS = 'http://www.w3.org/2000/svg';
   const svg = document.createElementNS(svgNS, 'svg');
   svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
   svg.style.width = '100%';
   svg.style.height = '100%';
+
+  const nodeRadius = 38;
+  const clipRadius = 36;
+  const imgSize = nodeRadius * 2 - 4;
 
   // 定义 clipPath，用于把人物头像裁成圆形
   const defs = document.createElementNS(svgNS, 'defs');
@@ -1177,13 +1251,13 @@ function renderRelationPanel() {
     const circle = document.createElementNS(svgNS, 'circle');
     circle.setAttribute('cx', n.x * w);
     circle.setAttribute('cy', n.y * h);
-    circle.setAttribute('r', 32);
+    circle.setAttribute('r', clipRadius);
     clip.appendChild(circle);
     defs.appendChild(clip);
   });
   svg.appendChild(defs);
 
-  // 边
+  // 边与关系标签
   relationshipGraph.edges.forEach((e) => {
     const from = relationshipGraph.nodes.find((n) => n.id === e.from);
     const to = relationshipGraph.nodes.find((n) => n.id === e.to);
@@ -1193,14 +1267,39 @@ function renderRelationPanel() {
     const x2 = to.x * w;
     const y2 = to.y * h;
     const unlocked = state.unlockedCharacters.has(from.id) && state.unlockedCharacters.has(to.id);
+
     const line = document.createElementNS(svgNS, 'line');
     line.setAttribute('x1', x1);
     line.setAttribute('y1', y1);
     line.setAttribute('x2', x2);
     line.setAttribute('y2', y2);
-    line.setAttribute('stroke', unlocked ? 'rgba(139,69,19,0.6)' : 'rgba(160,160,160,0.25)');
-    line.setAttribute('stroke-width', unlocked ? 2 : 1);
+    line.setAttribute('stroke', unlocked ? 'rgba(139,69,19,0.55)' : 'rgba(160,160,160,0.22)');
+    line.setAttribute('stroke-width', unlocked ? 2.5 : 1.5);
     svg.appendChild(line);
+
+    // 关系标签
+    const mx = (x1 + x2) / 2;
+    const my = (y1 + y2) / 2;
+    const label = e.label || '';
+    const labelBg = document.createElementNS(svgNS, 'rect');
+    const bw = label.length * 14 + 10;
+    labelBg.setAttribute('x', mx - bw / 2);
+    labelBg.setAttribute('y', my - 10);
+    labelBg.setAttribute('width', bw);
+    labelBg.setAttribute('height', 20);
+    labelBg.setAttribute('rx', 10);
+    labelBg.setAttribute('fill', unlocked ? 'rgba(250,245,235,0.92)' : 'rgba(240,240,240,0.75)');
+    labelBg.setAttribute('stroke', unlocked ? 'rgba(139,69,19,0.4)' : 'rgba(170,170,170,0.3)');
+    svg.appendChild(labelBg);
+
+    const labelText = document.createElementNS(svgNS, 'text');
+    labelText.setAttribute('x', mx);
+    labelText.setAttribute('y', my + 4);
+    labelText.setAttribute('text-anchor', 'middle');
+    labelText.setAttribute('fill', unlocked ? '#8B4513' : '#999');
+    labelText.setAttribute('font-size', '12');
+    labelText.textContent = label;
+    svg.appendChild(labelText);
   });
 
   // 节点
@@ -1208,11 +1307,11 @@ function renderRelationPanel() {
     const unlocked = state.unlockedCharacters.has(n.id);
     const cx = n.x * w;
     const cy = n.y * h;
-    const r = 34;
+
     const circle = document.createElementNS(svgNS, 'circle');
     circle.setAttribute('cx', cx);
     circle.setAttribute('cy', cy);
-    circle.setAttribute('r', r);
+    circle.setAttribute('r', nodeRadius);
     circle.setAttribute('fill', unlocked ? 'rgba(250,245,235,0.95)' : 'rgba(220,220,220,0.4)');
     circle.setAttribute('stroke', unlocked ? '#8B4513' : '#aaa');
     circle.setAttribute('stroke-width', unlocked ? 3 : 1);
@@ -1221,33 +1320,35 @@ function renderRelationPanel() {
     if (unlocked) {
       const img = document.createElementNS(svgNS, 'image');
       img.setAttribute('href', n.portrait);
-      img.setAttribute('x', cx - r + 2);
-      img.setAttribute('y', cy - r + 2);
-      img.setAttribute('width', (r - 2) * 2);
-      img.setAttribute('height', (r - 2) * 2);
-      img.setAttribute('preserveAspectRatio', 'xMidYMid slice');
+      img.setAttribute('x', cx - nodeRadius + 2);
+      img.setAttribute('y', cy - nodeRadius + 2);
+      img.setAttribute('width', imgSize);
+      img.setAttribute('height', imgSize);
+      // 以脸部偏上区域为中心进行裁剪式填充
+      img.setAttribute('preserveAspectRatio', 'xMidYMin slice');
       img.setAttribute('clip-path', `url(#clip-${n.id})`);
       svg.appendChild(img);
     } else {
       const text = document.createElementNS(svgNS, 'text');
       text.setAttribute('x', cx);
-      text.setAttribute('y', cy + 6);
+      text.setAttribute('y', cy + 7);
       text.setAttribute('text-anchor', 'middle');
       text.setAttribute('fill', '#999');
-      text.setAttribute('font-size', '22');
+      text.setAttribute('font-size', '24');
       text.setAttribute('font-weight', 'bold');
       text.textContent = '?';
       svg.appendChild(text);
     }
 
-    const label = document.createElementNS(svgNS, 'text');
-    label.setAttribute('x', cx);
-    label.setAttribute('y', cy + r + 20);
-    label.setAttribute('text-anchor', 'middle');
-    label.setAttribute('fill', unlocked ? '#6b4c2a' : '#999');
-    label.setAttribute('font-size', '14');
-    label.textContent = n.name;
-    svg.appendChild(label);
+    const nameLabel = document.createElementNS(svgNS, 'text');
+    nameLabel.setAttribute('x', cx);
+    nameLabel.setAttribute('y', cy + nodeRadius + 22);
+    nameLabel.setAttribute('text-anchor', 'middle');
+    nameLabel.setAttribute('fill', unlocked ? '#6b4c2a' : '#999');
+    nameLabel.setAttribute('font-size', '14');
+    nameLabel.setAttribute('font-weight', 'bold');
+    nameLabel.textContent = n.name;
+    svg.appendChild(nameLabel);
   });
 
   relationSvg.appendChild(svg);
@@ -1549,18 +1650,23 @@ async function advance() {
 // ============================
 // 节点渲染
 // ============================
-async function renderNode(id) {
-  state.currentNodeId = id;
-  state.currentPageIndex = 0;
-  state.feedbackMode = false;
-  state.lastFeedback = null;
-  state.lastConvergeTo = null;
-
+async function renderNode(id, { skipHistory = false } = {}) {
   const node = storyData[id];
   if (!node) {
     console.error('未知节点：', id);
     return;
   }
+
+  // 进入有选项的决策节点时记录快照，方便返回重选
+  if (!skipHistory && node.options && node.options.length > 0) {
+    pushHistory(id);
+  }
+
+  state.currentNodeId = id;
+  state.currentPageIndex = 0;
+  state.feedbackMode = false;
+  state.lastFeedback = null;
+  state.lastConvergeTo = null;
 
   recordNodeEnter(id);
 
@@ -1740,18 +1846,44 @@ function renderSettlementList() {
     hotspotSection.appendChild(item);
   });
   settlementList.appendChild(hotspotSection);
+
+  // 高亮词汇
+  const termSection = document.createElement('div');
+  termSection.className = 'settlement-section';
+  const unlockedTermsList = Object.keys(terms).filter((t) => state.unlockedTerms.has(t));
+  if (unlockedTermsList.length > 0) {
+    termSection.innerHTML = `<h3>本次点亮的词汇</h3>`;
+    const item = document.createElement('div');
+    item.className = 'manual-item';
+    item.innerHTML = `<p>${unlockedTermsList.map((t) => `<span class="term-inline">${t}</span>`).join('、')}</p>`;
+    termSection.appendChild(item);
+  } else {
+    termSection.innerHTML = '<h3>本次点亮的词汇</h3>';
+    const item = document.createElement('div');
+    item.className = 'manual-item undiscovered';
+    item.innerHTML = '<p>本次没有点击任何高亮词汇。</p>';
+    termSection.appendChild(item);
+  }
+  settlementList.appendChild(termSection);
 }
 
 function renderShareSummary(title, amount, count) {
   const summary = document.getElementById('share-summary');
   if (!summary) return;
+  const termCount = state.unlockedTerms.size;
   summary.innerHTML = `
-    <h3>《刘姥姥一进荣国府》</h3>
-    <p class="share-ending">${title}</p>
-    <p>拿到银子：${getSilverText(amount)}</p>
-    <p>文化热点：${count}/7</p>
-    <p>人情值剩余：${state.renqing}</p>
-    <p class="share-footer">改编自《红楼梦》第六回 · 互动叙事</p>
+    <div class="share-card-inner">
+      <div class="share-card-header">《红楼梦》第六回</div>
+      <div class="share-card-title">刘姥姥一进荣国府</div>
+      <div class="share-card-ending">${title}</div>
+      <div class="share-card-stats">
+        <div class="share-stat"><span class="share-stat-num">${getSilverText(amount)}</span><span class="share-stat-label">拿到银子</span></div>
+        <div class="share-stat"><span class="share-stat-num">${count}</span><span class="share-stat-label">文化热点</span></div>
+        <div class="share-stat"><span class="share-stat-num">${termCount}</span><span class="share-stat-label">点亮词汇</span></div>
+        <div class="share-stat"><span class="share-stat-num">${state.renqing}</span><span class="share-stat-label">人情值剩余</span></div>
+      </div>
+      <div class="share-card-footer">互动叙事 · 语言学习</div>
+    </div>
   `;
 }
 
@@ -1759,40 +1891,35 @@ async function shareSummary() {
   const summary = document.getElementById('share-summary');
   if (!summary) return;
 
-  // Web Share API（优先）
-  const text = `我在《刘姥姥一进荣国府》中拿到了${getSilverText(getSilverAmount())}银子，发现了${state.discoveredHotspots.size}/7个文化细节。`;
-  if (navigator.share) {
-    try {
-      await navigator.share({
-        title: '刘姥姥一进荣国府',
-        text: text,
-        url: window.location.href
-      });
-      return;
-    } catch (e) {}
-  }
-
-  // html2canvas 截图
   if (typeof html2canvas === 'undefined') {
-    alert('截图库未加载，已复制文字总结到剪贴板。');
-    copySummaryText(text);
+    alert('截图库未加载，请检查网络。');
     return;
   }
+
   try {
-    const canvas = await html2canvas(summary, { backgroundColor: '#faf5eb', scale: 2 });
+    const canvas = await html2canvas(summary, { backgroundColor: null, scale: 3, useCORS: true });
+    const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/png'));
+    const file = new File([blob], 'liulaolao-summary.png', { type: 'image/png' });
+
+    // 如果浏览器支持分享文件，直接调起系统分享
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      try {
+        await navigator.share({
+          title: '刘姥姥一进荣国府',
+          text: '看看我这一趟进贾府的成绩！',
+          files: [file]
+        });
+        return;
+      } catch (e) {}
+    }
+
+    // 否则直接下载图片
     const link = document.createElement('a');
     link.download = 'liulaolao-summary.png';
     link.href = canvas.toDataURL('image/png');
     link.click();
   } catch (e) {
-    alert('截图失败，已复制文字总结。');
-    copySummaryText(text);
-  }
-}
-
-function copySummaryText(text) {
-  if (navigator.clipboard) {
-    navigator.clipboard.writeText(text).catch(() => {});
+    alert('截图失败：' + e.message);
   }
 }
 
@@ -1809,6 +1936,7 @@ function resetGame() {
   state.lastConvergeTo = null;
   state.prologueStep = -1;
   state.pendingErrorModal = null;
+  state.historyStack = [];
 
   quests.forEach((q) => q.completed = false);
   relationshipGraph.nodes.forEach((n) => delete n.deed);
@@ -1825,6 +1953,7 @@ function resetGame() {
   updateProgress('node_1');
   updateCounts();
   updateHP();
+  updateBackButton();
   renderManual();
   renderRelationPanel();
 }
@@ -1835,6 +1964,7 @@ async function startGame() {
   settlementScreen.classList.add('hidden');
   updateCounts();
   updateHP();
+  updateBackButton();
   renderManual();
   renderRelationPanel();
   recordGameStart();
@@ -1903,6 +2033,21 @@ relationBtn.addEventListener('click', (e) => {
   requestAnimationFrame(() => renderRelationPanel());
 });
 
+if (coverRelationBtn) {
+  coverRelationBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    relationPanel.classList.remove('hidden');
+    requestAnimationFrame(() => renderRelationPanel());
+  });
+}
+
+if (backBtn) {
+  backBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    goBack();
+  });
+}
+
 closeRelation.addEventListener('click', (e) => {
   e.stopPropagation();
   relationPanel.classList.add('hidden');
@@ -1942,7 +2087,7 @@ function closeCoverPanel() {
 
 function getSaveData() {
   return {
-    version: 2,
+    version: 3,
     currentNodeId: state.currentNodeId,
     currentPageIndex: state.currentPageIndex,
     renqing: state.renqing,
@@ -1953,7 +2098,8 @@ function getSaveData() {
     prologueStep: state.prologueStep,
     characterDeeds: relationshipGraph.nodes
       .filter((n) => n.deed)
-      .map((n) => ({ id: n.id, deed: n.deed }))
+      .map((n) => ({ id: n.id, deed: n.deed })),
+    historyStack: state.historyStack
   };
 }
 
@@ -1994,6 +2140,7 @@ function loadGame() {
     state.unlockedCharacters = new Set(data.unlockedCharacters || []);
     if (!state.unlockedCharacters.has('liulaolao')) state.unlockedCharacters.add('liulaolao');
     state.prologueStep = data.prologueStep || -1;
+    state.historyStack = Array.isArray(data.historyStack) ? data.historyStack : [];
     state.feedbackMode = false;
     state.lastFeedback = null;
     state.lastConvergeTo = null;
@@ -2012,6 +2159,7 @@ function loadGame() {
 
     updateCounts();
     updateHP();
+    updateBackButton();
     renderManual();
     renderRelationPanel();
     closeCoverPanel();
