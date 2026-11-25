@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <title>刘姥姥一进荣国府 · 开发者数据面板</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -125,6 +128,7 @@
     <button class="btn" onclick="exportJSON()">导出 JSON</button>
     <button class="btn" onclick="clearData()">清空本地数据</button>
   </div>
+  <p id="data-source-info" class="hint" style="margin-bottom: 20px;">正在加载数据源…</p>
 
   <div class="section">
     <h2>总体概况</h2>
@@ -160,6 +164,8 @@
 
   let currentConfig = { provider: 'local', url: '', key: '' };
 
+  let autoRefreshTimer = null;
+
   function checkLogin() {
     const input = document.getElementById('pwd').value.trim();
     if (input === ADMIN_PASSWORD) {
@@ -167,6 +173,8 @@
       document.getElementById('dashboard').classList.remove('hidden');
       loadConfig();
       refreshData();
+      if (autoRefreshTimer) clearInterval(autoRefreshTimer);
+      autoRefreshTimer = setInterval(refreshData, 30000);
     } else {
       alert('密码错误');
     }
@@ -192,6 +200,7 @@
     document.getElementById('sb-url').value = currentConfig.url;
     document.getElementById('sb-key').value = currentConfig.key;
     onProviderChange();
+    updateSourceInfo();
   }
 
   function saveConfig() {
@@ -212,11 +221,26 @@
     document.getElementById('supabase-config').classList.toggle('hidden', provider !== 'supabase');
   }
 
+  function updateSourceInfo(errorMsg = '') {
+    const provider = currentConfig.provider;
+    const label = provider === 'supabase' ? 'Supabase' : 'localStorage（本机）';
+    const info = document.getElementById('data-source-info');
+    if (!info) return;
+    if (errorMsg) {
+      info.innerHTML = `<span style="color:#c62828">数据源 <strong>${label}</strong> 加载失败：${errorMsg}</span>`;
+      return;
+    }
+    const time = new Date().toLocaleString('zh-CN');
+    const sourceHint = provider === 'supabase'
+      ? '数据来自 Supabase 真实玩家记录。'
+      : '数据来自本浏览器 localStorage，仅记录当前设备。';
+    info.innerHTML = `当前数据源：<strong>${label}</strong> · ${sourceHint} · 最近刷新：${time}`;
+  }
+
   async function getEvents() {
     if (currentConfig.provider === 'supabase') {
       if (!currentConfig.url || !currentConfig.key) {
-        alert('请先填写 Supabase URL 和 anon key');
-        return [];
+        throw new Error('请先填写 Supabase URL 和 anon key');
       }
       const res = await fetch(`${currentConfig.url.replace(/\/$/, '')}/rest/v1/game_events?select=*&order=created_at.desc`, {
         headers: { 'apikey': currentConfig.key, 'Authorization': `Bearer ${currentConfig.key}` }
@@ -273,9 +297,10 @@
     try {
       events = await getEvents();
     } catch (e) {
-      alert('获取数据失败：' + e.message);
+      updateSourceInfo(e.message);
       return;
     }
+    updateSourceInfo();
 
     const sessions = new Set(events.filter(e => e.sessionId).map(e => e.sessionId));
     document.getElementById('stat-sessions').textContent = sessions.size;
