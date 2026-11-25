@@ -5,8 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <title>刘姥姥一进荣国府</title>
-  <link rel="stylesheet" href="style.css?v=10">
-  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="style.css?v=11">
 </head>
 <body>
   <div id="app">
@@ -161,8 +160,20 @@
     <div id="location-title" class="hidden"></div>
     <div id="tooltip" class="hidden"></div>
     <div id="hp-change" class="hidden"></div>
+
+    <button id="volume-btn" type="button" aria-label="音量">&#128266;</button>
+    <div id="volume-panel" class="hidden">
+      <div class="volume-panel-content">
+        <h3>音量调节</h3>
+        <label>总音量<input type="range" id="vol-master" min="0" max="100" value="80"></label>
+        <label>背景音乐<input type="range" id="vol-music" min="0" max="100" value="70"></label>
+        <label>环境音效<input type="range" id="vol-ambience" min="0" max="100" value="60"></label>
+        <label>效果音<input type="range" id="vol-sfx" min="0" max="100" value="80"></label>
+        <button id="volume-panel-close" type="button">关闭</button>
+      </div>
+    </div>
   </div>
 
-  <script src="game.js?v=10"></script>
+  <script src="game.js?v=11"></script>
 </body>
 </html>

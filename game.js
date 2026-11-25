@@ -64,7 +64,7 @@ const portraitMap = {
   '板儿': 'assets/ch_liulaolao_baner.png',
   '孩子': 'assets/ch_guiding_boy.png',
   '小丫头': 'assets/ch_maid_hired.png',
-  '贾蓉': 'assets/ch_wang_cheng.png'
+  '贾蓉': 'assets/ch_jia_rong.png'
 };
 
 // ============================
@@ -78,7 +78,7 @@ const relationshipGraph = {
     { id: 'zhou', name: '周瑞家的', x: 0.18, y: 0.42, portrait: 'assets/ch_zhou_rui_wife.png', intro: '贾家的女仆。她丈夫受过狗儿父亲的帮助，所以愿意帮刘姥姥。', unlocked: false },
     { id: 'ping', name: '平儿', x: 0.50, y: 0.18, portrait: 'assets/ch_ping_er.png', intro: '王熙凤身边的大丫头。年轻、漂亮、穿得很好。', unlocked: false },
     { id: 'xifeng', name: '王熙凤', x: 0.82, y: 0.18, portrait: 'assets/ch_wang_xifeng.png', intro: '贾家现在管事的年轻女人，不到二十岁，特别能干。', unlocked: false },
-    { id: 'jiarong', name: '贾蓉', x: 0.78, y: 0.42, portrait: 'assets/ch_wang_cheng.png', intro: '贾珍的儿子，王熙凤的侄儿。来借玻璃炕屏。', unlocked: false }
+    { id: 'jiarong', name: '贾蓉', x: 0.78, y: 0.42, portrait: 'assets/ch_jia_rong.png', intro: '贾珍的儿子，王熙凤的侄儿。来借玻璃炕屏。', unlocked: false }
   ],
   edges: [
     { from: 'liulaolao', to: 'baner', label: '祖孙' },
@@ -102,7 +102,7 @@ const characters = [
   { id: 'zhou', name: '周瑞家的', portrait: 'assets/ch_zhou_rui_wife.png', role: '贾家的女仆。她丈夫受过狗儿父亲的帮助，所以愿意帮刘姥姥。' },
   { id: 'ping', name: '平儿', portrait: 'assets/ch_ping_er.png', role: '王熙凤身边的大丫头。年轻、漂亮、穿得很好。' },
   { id: 'xifeng', name: '王熙凤', portrait: 'assets/ch_wang_xifeng.png', role: '贾家现在管事的年轻女人，不到二十岁，特别能干。' },
-  { id: 'jiarong', name: '贾蓉', portrait: 'assets/ch_wang_cheng.png', role: '贾珍的儿子，王熙凤的侄儿。来借玻璃炕屏。' }
+  { id: 'jiarong', name: '贾蓉', portrait: 'assets/ch_jia_rong.png', role: '贾珍的儿子，王熙凤的侄儿。来借玻璃炕屏。' }
 ];
 
 // 节点标题
@@ -873,6 +873,101 @@ const state = {
 state.unlockedCharacters.add('liulaolao');
 
 // ============================
+// 音频管理
+// ============================
+const AudioManager = {
+  initialized: false,
+  muted: false,
+  vol: { master: 0.8, music: 0.7, ambience: 0.6, sfx: 0.8 },
+  bgm: null,
+  ambience: null,
+
+  init() {
+    if (this.initialized) return;
+    this.bgm = new Audio('assets/bgm_mansion.mp3');
+    this.bgm.loop = true;
+    this.bgm.volume = this.vol.master * this.vol.music;
+
+    this.ambience = new Audio();
+    this.ambience.loop = true;
+    this.ambience.volume = this.vol.master * this.vol.ambience;
+
+    this.initialized = true;
+    this.applyVolume();
+    this.playBgm();
+    logEvent('audio_start', { track: 'bgm_mansion' });
+  },
+
+  applyVolume() {
+    if (this.bgm) this.bgm.volume = this.muted ? 0 : this.vol.master * this.vol.music;
+    if (this.ambience) this.ambience.volume = this.muted ? 0 : this.vol.master * this.vol.ambience;
+  },
+
+  playBgm() {
+    if (!this.bgm) return;
+    this.bgm.currentTime = 0;
+    const p = this.bgm.play();
+    if (p) p.catch(() => {});
+  },
+
+  setAmbience(track) {
+    if (!this.initialized) return;
+    const src = track ? `assets/${track}.mp3` : '';
+    if (!track) {
+      if (this.ambience) {
+        this.ambience.pause();
+        this.ambience.src = '';
+      }
+      return;
+    }
+    if (this.ambience && this.ambience.src !== src) {
+      this.ambience.src = src;
+      this.ambience.currentTime = 0;
+      const p = this.ambience.play();
+      if (p) p.catch(() => {});
+      logEvent('audio_ambience', { track });
+    }
+  },
+
+  setAmbienceForNode(nodeId) {
+    const map = {
+      'node_1': 'amb_wind',
+      'node_2': 'amb_market',
+      'node_3': 'amb_market',
+      'node_4': 'amb_market'
+    };
+    this.setAmbience(map[nodeId] || null);
+  },
+
+  playSfx(name) {
+    if (!this.initialized) return;
+    const a = new Audio(`assets/${name}.mp3`);
+    a.volume = this.muted ? 0 : this.vol.master * this.vol.sfx;
+    const p = a.play();
+    if (p) p.catch(() => {});
+    logEvent('audio_sfx', { track: name });
+  },
+
+  setVolumes(v) {
+    this.vol = { ...this.vol, ...v };
+    this.applyVolume();
+    logEvent('audio_volume', { volumes: this.vol });
+  },
+
+  toggleMute() {
+    this.muted = !this.muted;
+    this.applyVolume();
+    return this.muted;
+  }
+};
+
+// 任何首次点击都可尝试恢复音频（浏览器自动播放策略）
+function tryResumeAudio() {
+  if (!AudioManager.initialized) return;
+  if (AudioManager.bgm && AudioManager.bgm.paused) AudioManager.playBgm();
+}
+
+// ============================
 // 开发者数据分析（玩家不可见）
 // ============================
 const ANALYTICS = {
@@ -1020,6 +1115,13 @@ const cardCulture = document.getElementById('card-culture');
 const cardSource = document.getElementById('card-source');
 const cardInnerThought = document.getElementById('card-inner-thought');
 const cardClose = document.getElementById('card-close');
+const volumeBtn = document.getElementById('volume-btn');
+const volumePanel = document.getElementById('volume-panel');
+const volumePanelClose = document.getElementById('volume-panel-close');
+const volMaster = document.getElementById('vol-master');
+const volMusic = document.getElementById('vol-music');
+const volAmbience = document.getElementById('vol-ambience');
+const volSfx = document.getElementById('vol-sfx');
 const manualPanel = document.getElementById('manual-panel');
 const manualList = document.getElementById('manual-list');
 const manualBtn = document.getElementById('manual-btn');
@@ -1518,6 +1620,7 @@ function renderHotspots(hotspots) {
 }
 
 function showHotspotCard(hotspot) {
+  AudioManager.playSfx('sfx_hotspot');
   recordHotspotClick(hotspot);
   state.discoveredHotspots.add(hotspot.id);
   checkAllHotspotsQuest();
@@ -1729,6 +1832,7 @@ async function renderNode(id, { skipHistory = false } = {}) {
   state.lastConvergeTo = null;
 
   recordNodeEnter(id);
+  AudioManager.setAmbienceForNode(id);
 
   // 节点触发的人物解锁
   unlockCharactersForNode(id);
@@ -1935,7 +2039,7 @@ function renderShareSummary(title, amount, count) {
   const termCount = state.unlockedTerms.size;
   const unlockedChars = relationshipGraph.nodes.filter((n) => state.unlockedCharacters.has(n.id));
   const charAvatars = unlockedChars.map((n) =>
-    `<div class="share-char"><img src="${n.portrait}" alt="${n.name}" onerror="this.style.display='none'"><span>${n.name}</span></div>`
+    `<div class="share-char"><img src="${n.portrait}" alt="${n.name}" crossorigin="anonymous" onerror="this.style.display='none'"><span>${n.name}</span></div>`
   ).join('');
 
   summary.innerHTML = `
@@ -1949,6 +2053,10 @@ function renderShareSummary(title, amount, count) {
         <div class="share-stat"><span class="share-stat-num">${termCount}</span><span class="share-stat-label">点亮词汇</span></div>
         <div class="share-stat"><span class="share-stat-num">${state.renqing}</span><span class="share-stat-label">人情值剩余</span></div>
       </div>
+      <div class="share-card-relation">
+        <div class="share-card-chars-title">人物关系网</div>
+        <div id="share-relation-graph"></div>
+      </div>
       <div class="share-card-chars">
         <div class="share-card-chars-title">点亮的人物</div>
         <div class="share-card-chars-list">${charAvatars}</div>
@@ -1956,37 +2064,240 @@ function renderShareSummary(title, amount, count) {
       <div class="share-card-footer">互动叙事 · 语言学习</div>
     </div>
   `;
+  renderShareRelationGraph(document.getElementById('share-relation-graph'));
+}
+
+function loadShareImage(src) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => resolve(img);
+    img.onerror = () => resolve(null);
+    img.src = src;
+  });
+}
+
+function renderShareRelationGraph(container) {
+  if (!container) return;
+  const w = 540;
+  const h = 220;
+  let svg = `<svg viewBox="0 0 ${w} ${h}" class="share-relation-svg" xmlns="http://www.w3.org/2000/svg">`;
+  relationshipGraph.edges.forEach((e) => {
+    const from = relationshipGraph.nodes.find((n) => n.id === e.from);
+    const to = relationshipGraph.nodes.find((n) => n.id === e.to);
+    if (!from || !to) return;
+    const x1 = Math.round(from.x * w);
+    const y1 = Math.round(from.y * h);
+    const x2 = Math.round(to.x * w);
+    const y2 = Math.round(to.y * h);
+    const unlocked = state.unlockedCharacters.has(from.id) && state.unlockedCharacters.has(to.id);
+    const stroke = unlocked ? 'rgba(139,69,19,0.65)' : 'rgba(160,160,160,0.35)';
+    const width = unlocked ? 2.5 : 1.5;
+    const mx = (x1 + x2) / 2;
+    const my = (y1 + y2) / 2;
+    svg += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${stroke}" stroke-width="${width}"/>`;
+    svg += `<text x="${mx}" y="${my - 3}" text-anchor="middle" fill="${unlocked ? '#8B4513' : '#aaa'}" font-size="12">${e.label}</text>`;
+  });
+  relationshipGraph.nodes.forEach((n) => {
+    const cx = Math.round(n.x * w);
+    const cy = Math.round(n.y * h);
+    const unlocked = state.unlockedCharacters.has(n.id);
+    const r = unlocked ? 24 : 18;
+    const fill = unlocked ? '#f5ecd9' : '#d8d0c0';
+    const stroke = unlocked ? '#8B4513' : '#bbb';
+    const textFill = unlocked ? '#2b2015' : '#888';
+    svg += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${fill}" stroke="${stroke}" stroke-width="2.5"/>`;
+    if (unlocked) {
+      svg += `<image href="${n.portrait}" x="${cx - r + 2}" y="${cy - r + 2}" width="${(r - 2) * 2}" height="${(r - 2) * 2}" style="clip-path: circle(${r - 2}px at ${r - 2}px ${r - 2}px)" preserveAspectRatio="xMidYMid slice"/>`;
+    } else {
+      svg += `<text x="${cx}" y="${cy + 5}" text-anchor="middle" fill="${textFill}" font-size="14" font-weight="bold">${n.name.slice(0, 1)}</text>`;
+    }
+    svg += `<text x="${cx}" y="${cy + r + 16}" text-anchor="middle" fill="${textFill}" font-size="13">${n.name}</text>`;
+  });
+  svg += '</svg>';
+  container.innerHTML = svg;
+}
+
+async function generateShareCanvas(title, amount, count) {
+  const W = 720;
+  const H = 1280;
+  const canvas = document.createElement('canvas');
+  canvas.width = W;
+  canvas.height = H;
+  const ctx = canvas.getContext('2d');
+
+  const grad = ctx.createLinearGradient(0, 0, 0, H);
+  grad.addColorStop(0, '#faf5eb');
+  grad.addColorStop(1, '#efe6d3');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, W, H);
+
+  ctx.strokeStyle = 'rgba(139,69,19,0.35)';
+  ctx.lineWidth = 8;
+  ctx.strokeRect(20, 20, W - 40, H - 40);
+
+  ctx.textAlign = 'center';
+  ctx.fillStyle = '#6b4c2a';
+  ctx.font = '24px KaiTi, STKaiti, serif';
+  ctx.fillText('《红楼梦》第六回', W / 2, 80);
+  ctx.font = 'bold 48px KaiTi, STKaiti, serif';
+  ctx.fillText('刘姥姥一进荣国府', W / 2, 145);
+  ctx.font = '32px KaiTi, STKaiti, serif';
+  ctx.fillStyle = '#8B4513';
+  ctx.fillText(title, W / 2, 205);
+
+  const stats = [
+    [getSilverText(amount), '拿到银子'],
+    [count, '文化热点'],
+    [state.unlockedTerms.size, '点亮词汇'],
+    [Math.max(0, state.renqing), '人情值剩余']
+  ];
+  const statY = 280;
+  const boxW = 140;
+  const gap = 22;
+  const startX = (W - (4 * boxW + 3 * gap)) / 2 + boxW / 2;
+  stats.forEach(([num, label], i) => {
+    const x = startX + i * (boxW + gap);
+    ctx.fillStyle = 'rgba(230,215,185,0.6)';
+    ctx.fillRect(x - boxW / 2, statY - 50, boxW, 90);
+    ctx.strokeStyle = 'rgba(139,69,19,0.25)';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(x - boxW / 2, statY - 50, boxW, 90);
+    ctx.fillStyle = '#8B4513';
+    ctx.font = 'bold 28px KaiTi, STKaiti, serif';
+    ctx.fillText(String(num), x, statY - 8);
+    ctx.fillStyle = '#5a4a35';
+    ctx.font = '20px KaiTi, STKaiti, serif';
+    ctx.fillText(label, x, statY + 22);
+  });
+
+  const graphX = 70;
+  const graphY = 390;
+  const graphW = 580;
+  const graphH = 300;
+  ctx.fillStyle = '#6b4c2a';
+  ctx.font = '24px KaiTi, STKaiti, serif';
+  ctx.textAlign = 'left';
+  ctx.fillText('人物关系网', graphX, graphY - 16);
+
+  relationshipGraph.edges.forEach((e) => {
+    const from = relationshipGraph.nodes.find((n) => n.id === e.from);
+    const to = relationshipGraph.nodes.find((n) => n.id === e.to);
+    if (!from || !to) return;
+    const x1 = graphX + from.x * graphW;
+    const y1 = graphY + from.y * graphH;
+    const x2 = graphX + to.x * graphW;
+    const y2 = graphY + to.y * graphH;
+    const unlocked = state.unlockedCharacters.has(from.id) && state.unlockedCharacters.has(to.id);
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.strokeStyle = unlocked ? 'rgba(139,69,19,0.65)' : 'rgba(160,160,160,0.35)';
+    ctx.lineWidth = unlocked ? 3 : 2;
+    ctx.stroke();
+    const mx = (x1 + x2) / 2;
+    const my = (y1 + y2) / 2;
+    ctx.fillStyle = unlocked ? '#8B4513' : '#aaa';
+    ctx.font = '16px KaiTi, STKaiti, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(e.label, mx, my - 4);
+  });
+
+  const nodeImgs = {};
+  await Promise.all(relationshipGraph.nodes.map(async (n) => {
+    nodeImgs[n.id] = await loadShareImage(n.portrait);
+  }));
+  relationshipGraph.nodes.forEach((n) => {
+    const cx = graphX + n.x * graphW;
+    const cy = graphY + n.y * graphH;
+    const unlocked = state.unlockedCharacters.has(n.id);
+    const r = unlocked ? 28 : 22;
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.fillStyle = unlocked ? '#f5ecd9' : '#d8d0c0';
+    ctx.fill();
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = unlocked ? '#8B4513' : '#bbb';
+    ctx.stroke();
+    const img = nodeImgs[n.id];
+    if (unlocked && img) {
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(cx, cy, r - 2, 0, Math.PI * 2);
+      ctx.clip();
+      ctx.drawImage(img, cx - r, cy - r, r * 2, r * 2);
+      ctx.restore();
+    } else {
+      ctx.fillStyle = unlocked ? '#8B4513' : '#999';
+      ctx.font = 'bold 18px KaiTi, STKaiti, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(n.name.slice(0, 1), cx, cy);
+      ctx.textBaseline = 'alphabetic';
+    }
+    ctx.fillStyle = unlocked ? '#2b2015' : '#888';
+    ctx.font = '16px KaiTi, STKaiti, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(n.name, cx, cy + r + 18);
+  });
+
+  const unlockedChars = relationshipGraph.nodes.filter((n) => state.unlockedCharacters.has(n.id));
+  const avatarY = graphY + graphH + 50;
+  ctx.fillStyle = '#6b4c2a';
+  ctx.font = '22px KaiTi, STKaiti, serif';
+  ctx.textAlign = 'left';
+  ctx.fillText('点亮的人物', 70, avatarY - 10);
+  const avatarSize = 64;
+  const avatarGap = 20;
+  const showChars = unlockedChars.slice(0, 6);
+  const avatarsX = (W - showChars.length * (avatarSize + avatarGap) + avatarGap) / 2 + avatarSize / 2;
+  const avatarImgs = await Promise.all(showChars.map((n) => loadShareImage(n.portrait)));
+  showChars.forEach((n, i) => {
+    const x = avatarsX + i * (avatarSize + avatarGap);
+    const img = avatarImgs[i];
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(x, avatarY + avatarSize / 2, avatarSize / 2, 0, Math.PI * 2);
+    ctx.clip();
+    if (img) {
+      ctx.drawImage(img, x - avatarSize / 2, avatarY, avatarSize, avatarSize);
+    } else {
+      ctx.fillStyle = '#e6d7b9';
+      ctx.fillRect(x - avatarSize / 2, avatarY, avatarSize, avatarSize);
+    }
+    ctx.restore();
+    ctx.beginPath();
+    ctx.arc(x, avatarY + avatarSize / 2, avatarSize / 2, 0, Math.PI * 2);
+    ctx.strokeStyle = '#8B4513';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.fillStyle = '#5a4a35';
+    ctx.font = '16px KaiTi, STKaiti, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(n.name, x, avatarY + avatarSize + 20);
+  });
+
+  ctx.fillStyle = '#8c7a60';
+  ctx.font = '18px KaiTi, STKaiti, serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('互动叙事 · 语言学习 · 刘姥姥一进荣国府', W / 2, H - 50);
+
+  return canvas;
 }
 
 let currentShareCanvas = null;
 let currentShareFile = null;
 
 async function shareSummary() {
-  const summary = document.getElementById('share-summary');
-  if (!summary) return;
-
-  if (typeof html2canvas === 'undefined') {
-    alert('截图库未加载，请检查网络。');
-    return;
-  }
-
+  const title = getEndingTitle(getSilverAmount());
+  const amount = getSilverAmount();
+  const count = state.discoveredHotspots.size;
   try {
-    // 临时把卡片放到可视区域并取消隐藏相关样式，确保 html2canvas 能正确渲染
-    const originalDisplay = summary.style.display;
-    summary.style.display = 'block';
-    const canvas = await html2canvas(summary, {
-      backgroundColor: '#faf5eb',
-      scale: 3,
-      useCORS: true,
-      logging: false
-    });
-    summary.style.display = originalDisplay;
-
+    const canvas = await generateShareCanvas(title, amount, count);
     currentShareCanvas = canvas;
     const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/png'));
     currentShareFile = new File([blob], 'liulaolao-summary.png', { type: 'image/png' });
 
-    // 显示预览模态框
     if (sharePreviewImage) {
       sharePreviewImage.innerHTML = '';
       const img = document.createElement('img');
@@ -1996,7 +2307,7 @@ async function shareSummary() {
     }
     if (sharePreviewModal) sharePreviewModal.classList.remove('hidden');
   } catch (e) {
-    alert('截图失败：' + e.message);
+    alert('生成分享图失败：' + e.message);
   }
 }
 
@@ -2325,6 +2636,7 @@ function renderRulesPanel() {
 }
 
 startBtn.addEventListener('click', () => {
+  AudioManager.init();
   renderPrologue(0);
 });
 
@@ -2403,6 +2715,52 @@ if (sharePreviewModal) {
     }
   });
 }
+
+function openVolumePanel() {
+  if (volumePanel) volumePanel.classList.remove('hidden');
+}
+function closeVolumePanel() {
+  if (volumePanel) volumePanel.classList.add('hidden');
+}
+function updateVolumeFromUI() {
+  AudioManager.setVolumes({
+    master: (volMaster ? parseInt(volMaster.value, 10) : 80) / 100,
+    music: (volMusic ? parseInt(volMusic.value, 10) : 70) / 100,
+    ambience: (volAmbience ? parseInt(volAmbience.value, 10) : 60) / 100,
+    sfx: (volSfx ? parseInt(volSfx.value, 10) : 80) / 100
+  });
+}
+
+if (volumeBtn) {
+  volumeBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (volumePanel && !volumePanel.classList.contains('hidden')) {
+      closeVolumePanel();
+    } else {
+      openVolumePanel();
+    }
+  });
+}
+if (volumePanelClose) {
+  volumePanelClose.addEventListener('click', (e) => {
+    e.stopPropagation();
+    closeVolumePanel();
+  });
+}
+if (volumePanel) {
+  volumePanel.addEventListener('click', (e) => {
+    if (e.target === volumePanel) closeVolumePanel();
+  });
+}
+[volMaster, volMusic, volAmbience, volSfx].forEach((el) => {
+  if (el) el.addEventListener('input', updateVolumeFromUI);
+});
+
+// 任意首次交互后尝试恢复音频（部分浏览器会暂停后台标签）
+document.addEventListener('click', function resumeAudioOnce() {
+  tryResumeAudio();
+  document.removeEventListener('click', resumeAudioOnce);
+}, { once: true });
 
 // 初始化
 updateCounts();

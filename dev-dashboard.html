@@ -134,6 +134,9 @@
       <div class="card"><div class="num" id="stat-chooses">0</div><div class="label">选择事件</div></div>
       <div class="card"><div class="num" id="stat-hotspots">0</div><div class="label">热点点击</div></div>
       <div class="card"><div class="num" id="stat-terms">0</div><div class="label">词汇点击</div></div>
+      <div class="card"><div class="num" id="stat-audio">0</div><div class="label">音频事件</div></div>
+      <div class="card"><div class="num" id="stat-bgm">0</div><div class="label">BGM 启动</div></div>
+      <div class="card"><div class="num" id="stat-sfx">0</div><div class="label">音效播放</div></div>
       <div class="card"><div class="num" id="stat-avg-dwell">0s</div><div class="label">平均选择停留</div></div>
     </div>
   </div>
@@ -142,6 +145,9 @@
   <div class="section"><h2>选项选择统计</h2><div id="choice-stats"><p class="empty">暂无数据</p></div></div>
   <div class="section"><h2>文化热点点击排行</h2><div id="hotspot-stats"><p class="empty">暂无数据</p></div></div>
   <div class="section"><h2>词汇点击排行</h2><div id="term-stats"><p class="empty">暂无数据</p></div></div>
+  <div class="section"><h2>音频事件统计</h2><div id="audio-stats"><p class="empty">暂无数据</p></div></div>
+  <div class="section"><h2>环境音效分布</h2><div id="ambience-stats"><p class="empty">暂无数据</p></div></div>
+  <div class="section"><h2>音效类型分布</h2><div id="sfx-stats"><p class="empty">暂无数据</p></div></div>
   <div class="section"><h2>结局分布</h2><div id="ending-stats"><p class="empty">暂无数据</p></div></div>
   <div class="section"><h2>原始事件流水（最近 50 条）</h2><div id="event-stream"><p class="empty">暂无数据</p></div></div>
 
@@ -277,6 +283,9 @@
     document.getElementById('stat-chooses').textContent = events.filter(e => e.type === 'choice_made').length;
     document.getElementById('stat-hotspots').textContent = events.filter(e => e.type === 'hotspot_click').length;
     document.getElementById('stat-terms').textContent = events.filter(e => e.type === 'term_click').length;
+    document.getElementById('stat-audio').textContent = events.filter(e => e.type && e.type.startsWith('audio_')).length;
+    document.getElementById('stat-bgm').textContent = events.filter(e => e.type === 'audio_start').length;
+    document.getElementById('stat-sfx').textContent = events.filter(e => e.type === 'audio_sfx').length;
 
     const dwells = events.filter(e => e.type === 'choice_made' && e.detail && e.detail.dwellMs > 0).map(e => e.detail.dwellMs);
     const avgDwell = dwells.length ? dwells.reduce((a, b) => a + b, 0) / dwells.length : 0;
@@ -294,6 +303,18 @@
 
     const termRows = countBy(events.filter(e => e.type === 'term_click'), e => e.detail && e.detail.term ? e.detail.term : '未知');
     renderBarTable('term-stats', termRows, k => k);
+
+    const audioRows = countBy(events.filter(e => e.type && e.type.startsWith('audio_')), e => e.type);
+    renderBarTable('audio-stats', audioRows, k => {
+      const map = { 'audio_start': 'BGM 启动', 'audio_ambience': '环境音效切换', 'audio_volume': '音量调节', 'audio_sfx': '效果音播放' };
+      return map[k] || k;
+    });
+
+    const ambienceRows = countBy(events.filter(e => e.type === 'audio_ambience'), e => e.detail && e.detail.track ? e.detail.track : '未知');
+    renderBarTable('ambience-stats', ambienceRows, k => k);
+
+    const sfxRows = countBy(events.filter(e => e.type === 'audio_sfx'), e => e.detail && e.detail.track ? e.detail.track : '未知');
+    renderBarTable('sfx-stats', sfxRows, k => k);
 
     const endingRows = countBy(events.filter(e => e.type === 'game_end'), e => e.detail && e.detail.endingType ? e.detail.endingType : '未知');
     renderBarTable('ending-stats', endingRows, k => k);
