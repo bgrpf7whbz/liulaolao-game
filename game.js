@@ -2049,9 +2049,13 @@ function renderShareSummary(title, amount, count) {
   const hotspotNames = allHotspots
     .filter((h) => state.discoveredHotspots.has(h.id))
     .map((h) => h.title);
-  const hotspotText = hotspotNames.length ? hotspotNames.join('、') : '本次没有发现文化热点';
+  const hotspotTags = hotspotNames.length
+    ? hotspotNames.map((t) => `<span class="share-tag hotspot-tag">${t}</span>`).join('')
+    : '<span class="share-empty">本次没有发现文化热点</span>';
   const termNames = Array.from(state.unlockedTerms);
-  const termText = termNames.length ? termNames.join('、') : '本次没有点击高亮词';
+  const termTags = termNames.length
+    ? termNames.map((t) => `<span class="share-tag term-tag">${t}</span>`).join('')
+    : '<span class="share-empty">本次没有点击高亮词</span>';
 
   summary.innerHTML = `
     <div class="share-card-inner">
@@ -2074,11 +2078,11 @@ function renderShareSummary(title, amount, count) {
       </div>
       <div class="share-card-list">
         <div class="share-card-chars-title">解锁的文化热点</div>
-        <p>${hotspotText}</p>
+        <div class="share-tag-list">${hotspotTags}</div>
       </div>
       <div class="share-card-list">
         <div class="share-card-chars-title">本次学到的高亮词</div>
-        <p>${termText}</p>
+        <div class="share-tag-list">${termTags}</div>
       </div>
       <div class="share-card-footer">互动叙事 · 语言学习</div>
     </div>
@@ -2305,36 +2309,71 @@ async function generateShareCanvas(title, amount, count) {
     .map((h) => h.title);
   const termNames = Array.from(state.unlockedTerms);
 
-  function drawWrappedLabel(y, label, items) {
+  function drawTagList(y, label, items, colorSet) {
     ctx.fillStyle = '#6b4c2a';
     ctx.font = '20px KaiTi, STKaiti, serif';
     ctx.textAlign = 'left';
     ctx.fillText(label, 70, y);
-    ctx.fillStyle = '#5a4a35';
-    ctx.font = '17px KaiTi, STKaiti, sans-serif';
-    const text = items.length ? items.join('、') : '本次没有记录';
-    const maxWidth = W - 140;
-    const words = text.split('、');
-    let line = '';
-    let lineY = y + 28;
-    words.forEach((word, idx) => {
-      const test = line + (line ? '、' : '') + word;
-      const metrics = ctx.measureText(test);
-      if (metrics.width > maxWidth && line) {
-        ctx.fillText(line, 70, lineY);
-        line = word;
-        lineY += 26;
-      } else {
-        line = test;
+
+    const startX = 70;
+    const maxX = W - 70;
+    let cx = startX;
+    let cy = y + 34;
+    const tagH = 30;
+    const gap = 8;
+    ctx.font = '15px KaiTi, STKaiti, sans-serif';
+    ctx.textBaseline = 'middle';
+
+    if (!items.length) {
+      ctx.fillStyle = '#999';
+      ctx.fillText('本次没有记录', startX, cy);
+      ctx.textBaseline = 'alphabetic';
+      return cy + 10;
+    }
+
+    items.forEach((text) => {
+      const padding = 14;
+      const tw = ctx.measureText(text).width + padding * 2;
+      if (cx + tw > maxX && cx > startX) {
+        cx = startX;
+        cy += tagH + gap;
       }
+      ctx.fillStyle = colorSet.bg;
+      roundRect(ctx, cx, cy - tagH / 2, tw, tagH, 10);
+      ctx.fill();
+      ctx.strokeStyle = colorSet.border;
+      ctx.lineWidth = 1;
+      ctx.stroke();
+      ctx.fillStyle = colorSet.text;
+      ctx.fillText(text, cx + padding, cy);
+      cx += tw + gap;
     });
-    if (line) ctx.fillText(line, 70, lineY);
-    return lineY;
+    ctx.textBaseline = 'alphabetic';
+    return cy + tagH / 2 + 10;
+  }
+
+  function roundRect(ctx, x, y, w, h, r) {
+    const rr = Math.min(r, w / 2, h / 2);
+    ctx.beginPath();
+    ctx.moveTo(x + rr, y);
+    ctx.arcTo(x + w, y, x + w, y + h, rr);
+    ctx.arcTo(x + w, y + h, x, y + h, rr);
+    ctx.arcTo(x, y + h, x, y, rr);
+    ctx.arcTo(x, y, x + w, y, rr);
+    ctx.closePath();
   }
 
   let listY = avatarY + avatarSize + 50;
-  listY = drawWrappedLabel(listY, '解锁的文化热点', hotspotNames) + 30;
-  drawWrappedLabel(listY, '本次学到的高亮词', termNames);
+  listY = drawTagList(listY, '解锁的文化热点', hotspotNames, {
+    bg: 'rgba(139, 69, 19, 0.12)',
+    border: 'rgba(139, 69, 19, 0.35)',
+    text: '#6b4c2a'
+  }) + 20;
+  drawTagList(listY, '本次学到的高亮词', termNames, {
+    bg: 'rgba(46, 125, 50, 0.12)',
+    border: 'rgba(46, 125, 50, 0.35)',
+    text: '#2e7d32'
+  });
 
   ctx.fillStyle = '#8c7a60';
   ctx.font = '18px KaiTi, STKaiti, serif';
