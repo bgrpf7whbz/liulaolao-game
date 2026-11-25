@@ -77,7 +77,8 @@ const relationshipGraph = {
     { id: 'gouer', name: '狗儿', x: 0.80, y: 0.72, portrait: 'assets/ch_gouer.png', intro: '刘姥姥的女婿。家里穷，爱生闷气。', unlocked: false },
     { id: 'zhou', name: '周瑞家的', x: 0.18, y: 0.42, portrait: 'assets/ch_zhou_rui_wife.png', intro: '贾家的女仆。她丈夫受过狗儿父亲的帮助，所以愿意帮刘姥姥。', unlocked: false },
     { id: 'ping', name: '平儿', x: 0.50, y: 0.18, portrait: 'assets/ch_ping_er.png', intro: '王熙凤身边的大丫头。年轻、漂亮、穿得很好。', unlocked: false },
-    { id: 'xifeng', name: '王熙凤', x: 0.82, y: 0.18, portrait: 'assets/ch_wang_xifeng.png', intro: '贾家现在管事的年轻女人，不到二十岁，特别能干。', unlocked: false }
+    { id: 'xifeng', name: '王熙凤', x: 0.82, y: 0.18, portrait: 'assets/ch_wang_xifeng.png', intro: '贾家现在管事的年轻女人，不到二十岁，特别能干。', unlocked: false },
+    { id: 'jiarong', name: '贾蓉', x: 0.78, y: 0.42, portrait: 'assets/ch_wang_cheng.png', intro: '贾珍的儿子，王熙凤的侄儿。来借玻璃炕屏。', unlocked: false }
   ],
   edges: [
     { from: 'liulaolao', to: 'baner', label: '祖孙' },
@@ -86,7 +87,8 @@ const relationshipGraph = {
     { from: 'liulaolao', to: 'zhou', label: '求引路' },
     { from: 'zhou', to: 'ping', label: '通传' },
     { from: 'ping', to: 'xifeng', label: '伺候' },
-    { from: 'liulaolao', to: 'xifeng', label: '远亲·求助' }
+    { from: 'liulaolao', to: 'xifeng', label: '远亲·求助' },
+    { from: 'xifeng', to: 'jiarong', label: '婶侄' }
   ]
 };
 
@@ -99,7 +101,8 @@ const characters = [
   { id: 'gouer', name: '狗儿', portrait: 'assets/ch_gouer.png', role: '刘姥姥的女婿。家里穷，爱生闷气。' },
   { id: 'zhou', name: '周瑞家的', portrait: 'assets/ch_zhou_rui_wife.png', role: '贾家的女仆。她丈夫受过狗儿父亲的帮助，所以愿意帮刘姥姥。' },
   { id: 'ping', name: '平儿', portrait: 'assets/ch_ping_er.png', role: '王熙凤身边的大丫头。年轻、漂亮、穿得很好。' },
-  { id: 'xifeng', name: '王熙凤', portrait: 'assets/ch_wang_xifeng.png', role: '贾家现在管事的年轻女人，不到二十岁，特别能干。' }
+  { id: 'xifeng', name: '王熙凤', portrait: 'assets/ch_wang_xifeng.png', role: '贾家现在管事的年轻女人，不到二十岁，特别能干。' },
+  { id: 'jiarong', name: '贾蓉', portrait: 'assets/ch_wang_cheng.png', role: '贾珍的儿子，王熙凤的侄儿。来借玻璃炕屏。' }
 ];
 
 // 节点标题
@@ -251,14 +254,15 @@ const storyData = {
     "hotspots": [
       {
         "id": "h1",
-        "x": 0.42,
-        "y": 0.74,
-        "w": 0.12,
+        "x": 0.50,
+        "y": 0.58,
+        "w": 0.14,
         "h": 0.12,
         "title": "粗陶酒碗",
         "surface": "农家用的粗陶碗，颜色不匀，边也磕了。",
         "usage": "平时喝酒、喝水都用它。",
         "culture": "一只粗碗，就是刘姥姥家「穷」最直接的样子。",
+        "innerThought": "这碗在我家用了多少年，边都磕了也没舍得扔。贾府怕是连看都不看一眼。",
         "source": "第六回",
         "image": "assets/hotspot_01_winebowl.png"
       }
@@ -489,6 +493,7 @@ const storyData = {
         "surface": "门口挂着的大红厚毡帘，又暖和又气派。",
         "usage": "冬天挂在门口挡风，也是富贵人家的装饰。",
         "culture": "掀开毡帘进门，就像从乡下走进了另一个世界。",
+        "innerThought": "这样厚、这样红的帘子，乡下哪见过？掀过去，就是另一个世界。",
         "source": "第六回",
         "image": "assets/hotspot_10_redfeltcurtain.png"
       }
@@ -521,6 +526,7 @@ const storyData = {
         "surface": "这是西洋自鸣钟，会自己报时，乡下人从没见过。",
         "usage": "到时间它就会自己响，告诉主人现在几点。",
         "culture": "钟是「洋货」，代表贾府有钱、有见识；刘姥姥听不懂，是乡下人和大官府的对照。",
+        "innerThought": "这东西自己会响？莫不是里头住了个小人儿？",
         "source": "第六回",
         "image": "assets/hotspot_09_clock_x_y.png"
       }
@@ -555,6 +561,7 @@ const storyData = {
         "surface": "满满一桌鱼肉，只动了几样就撤下去了。",
         "usage": "这是给主人摆的饭，吃不完也不会留给下人。",
         "culture": "一顿饭的浪费，就是乡下人家一年的开销——贫富差距的具象。",
+        "innerThought": "满满一桌菜，动了几样就撤了。这够我家吃好几天的。",
         "source": "第六回",
         "image": "assets/hotspot_09_kangtable.png"
       }
@@ -600,27 +607,29 @@ const storyData = {
     "hotspots": [
       {
         "id": "h5",
-        "x": 0.93,
-        "y": 0.22,
-        "w": 0.12,
+        "x": 0.86,
+        "y": 0.30,
+        "w": 0.14,
         "h": 0.18,
         "title": "撒花软帘",
         "surface": "门外挂着的大红撒花软帘。",
         "usage": "冬天挂在门口挡风，也是主人身份的装饰。",
         "culture": "这一道帘子，就是「门里门外」的分界，也是贫与富的分界。",
+        "innerThought": "这门帘比我的被子还讲究。人家挂门上，我盖身上。",
         "source": "第六回",
         "image": "assets/hotspot_08_softcurtain.png"
       },
       {
         "id": "h6",
         "x": 0.72,
-        "y": 0.14,
+        "y": 0.22,
         "w": 0.16,
         "h": 0.14,
         "title": "貂鼠昭君套",
         "surface": "王熙凤额上戴的貂鼠皮毛暖额。",
         "usage": "冬天戴在额头上挡风、保暖。",
         "culture": "一件小东西却价格不菲，连丫鬟都不一定有。乡下人连听都没听过。",
+        "innerThought": "凤姑娘额上那圈毛，我活了六十多岁都没见过。怕是很值钱。",
         "source": "第六回",
         "image": "assets/hotspot_11_zhaojuntao.png"
       }
@@ -669,6 +678,7 @@ const storyData = {
         "surface": "小铜火筷子拨着的小炉子，里面烧着炭，用来暖手。",
         "usage": "冬天拿在手里取暖，也可以放在炕上。",
         "culture": "凤姐一边拨灰一边说话，动作慢、不慌不忙，这就是大户人家的从容。",
+        "innerThought": "冬天有个这东西暖手，该多享福。我们只能在灶里扒炭灰。",
         "source": "第六回",
         "image": "assets/hotspot_11_handwarmer.png"
       }
@@ -806,6 +816,39 @@ const terms = {
   '打嘴': '丢脸、让人笑话。',
   '空架子': '外表好看，内里空虚。',
   '炕屏': '炕上摆着的屏风。'
+};
+
+// 难读词汇的拼音（HSK 5 级学习者友好）
+const termPinyin = {
+  '连宗': 'lián zōng',
+  '陪房': 'péi fáng',
+  '倒厅': 'dào tīng',
+  '角门': 'jiǎo mén',
+  '太爷': 'tài ye',
+  '纳福': 'nà fú',
+  '姑太太': 'gū tài tai',
+  '真佛儿': 'zhēn fó r',
+  '琏二奶奶': 'liǎn èr nǎi nai',
+  '内侄女儿': 'nèi zhí nüér',
+  '周旋': 'zhōu xuán',
+  '心眼子': 'xīn yǎn zi',
+  '空子': 'kòng zi',
+  '影壁': 'yǐng bì',
+  '通房大丫头': 'tōng fáng dà yā tou',
+  '绫罗': 'líng luó',
+  '插金戴银': 'chā jīn dài yín',
+  '自鸣钟': 'zì míng zhōng',
+  '金钟铜磬': 'jīn zhōng tóng qìng',
+  '摆饭': 'bǎi fàn',
+  '鸦雀不闻': 'yā què bù wén',
+  '昭君套': 'zhāo jūn tào',
+  '攒珠勒子': 'cuán zhū lēi zi',
+  '刻丝': 'kè sī',
+  '洋绉': 'yáng zhòu',
+  '辈数儿': 'bèi shù r',
+  '打嘴': 'dǎ zuǐ',
+  '空架子': 'kōng jià zi',
+  '炕屏': 'kàng píng'
 };
 
 // ============================
@@ -975,6 +1018,7 @@ const cardSurface = document.getElementById('card-surface');
 const cardUsage = document.getElementById('card-usage');
 const cardCulture = document.getElementById('card-culture');
 const cardSource = document.getElementById('card-source');
+const cardInnerThought = document.getElementById('card-inner-thought');
 const cardClose = document.getElementById('card-close');
 const manualPanel = document.getElementById('manual-panel');
 const manualList = document.getElementById('manual-list');
@@ -1026,6 +1070,11 @@ const backBtn = document.getElementById('back-btn');
 const manualTabs = document.querySelectorAll('.manual-tab');
 const manualSections = document.querySelectorAll('.manual-section');
 const shareBtn = document.getElementById('share-btn');
+const sharePreviewModal = document.getElementById('share-preview-modal');
+const sharePreviewImage = document.getElementById('share-preview-image');
+const sharePreviewClose = document.getElementById('share-preview-close');
+const sharePreviewDownload = document.getElementById('share-preview-download');
+const sharePreviewShare = document.getElementById('share-preview-share');
 
 // ============================
 // 工具函数
@@ -1052,7 +1101,13 @@ function wrapTerms(text) {
 
 function showTooltip(term, x, y) {
   if (!tooltip) return;
-  tooltip.textContent = terms[term] || '暂无释义';
+  const meaning = terms[term] || '暂无释义';
+  const pinyin = termPinyin[term];
+  if (pinyin) {
+    tooltip.innerHTML = `<strong>${term}</strong> <span class="term-pinyin">(${pinyin})</span><br>${meaning}`;
+  } else {
+    tooltip.textContent = meaning;
+  }
   tooltip.classList.remove('hidden');
   const left = Math.min(
     Math.max(x - 20, 10),
@@ -1179,7 +1234,7 @@ function renderManualHotspots() {
     const item = document.createElement('div');
     item.className = 'manual-item' + (discovered ? '' : ' undiscovered');
     item.innerHTML = `
-      ${discovered && h.image ? `<img src="${h.image}" alt="${h.title}" style="width:100%;max-height:100px;object-fit:cover;border-radius:6px;margin-bottom:8px;border:1px solid rgba(160,130,90,0.3);">` : ''}
+      ${discovered && h.image ? `<img src="${h.image}" alt="${h.title}" style="width:100%;max-height:140px;object-fit:contain;border-radius:6px;margin-bottom:8px;border:1px solid rgba(160,130,90,0.3);background:rgba(250,245,235,0.5);">` : ''}
       <h4>${discovered ? h.title : '???'}</h4>
       <p>${discovered ? h.surface : '尚未发现这个文化细节。'}</p>
       ${discovered && h.usage ? `<p>用处：${h.usage}</p>` : ''}
@@ -1477,6 +1532,10 @@ function showHotspotCard(hotspot) {
   cardSurface.textContent = hotspot.surface;
   if (cardUsage) cardUsage.textContent = hotspot.usage || '';
   if (cardCulture) cardCulture.textContent = hotspot.culture || hotspot.deep || '';
+  if (cardInnerThought) {
+    cardInnerThought.textContent = hotspot.innerThought || '';
+    cardInnerThought.style.display = hotspot.innerThought ? 'block' : 'none';
+  }
   cardSource.textContent = '出处：' + hotspot.source;
 
   const cardWidth = Math.min(340, stage.clientWidth - 40);
@@ -1525,6 +1584,12 @@ function renderChoices(options) {
 function selectOption(option) {
   const dwellMs = pageEnterTime ? Date.now() - pageEnterTime : 0;
   recordChoice(option, dwellMs);
+
+  // 在做出选择前记录当前决策节点快照，用于返回重选
+  const currentNode = getCurrentNode();
+  if (currentNode && currentNode.options && currentNode.options.length > 0) {
+    pushHistory(state.currentNodeId);
+  }
 
   const cost = option.renqingCost || 0;
   state.renqing -= cost;
@@ -1657,11 +1722,6 @@ async function renderNode(id, { skipHistory = false } = {}) {
     return;
   }
 
-  // 进入有选项的决策节点时记录快照，方便返回重选
-  if (!skipHistory && node.options && node.options.length > 0) {
-    pushHistory(id);
-  }
-
   state.currentNodeId = id;
   state.currentPageIndex = 0;
   state.feedbackMode = false;
@@ -1714,14 +1774,16 @@ function unlockCharactersForNode(id) {
     'node_2': ['baner'],
     'node_4': ['zhou'],
     'node_7': ['ping'],
-    'node_11': ['xifeng']
+    'node_11': ['xifeng'],
+    'node_13': ['jiarong']
   };
   const deeds = {
     'gouer': '家里揭不开锅，坐在炕沿上生闷气。',
     'baner': '五六岁，跟着刘姥姥进城见世面。',
     'zhou': '受狗儿父亲旧恩，答应替刘姥姥通传。',
     'ping': '凤姐身边大丫头，先替刘姥姥安排座位。',
-    'xifeng': '荣国府实际管家，最终给了刘姥姥银子。'
+    'xifeng': '荣国府实际管家，最终给了刘姥姥银子。',
+    'jiarong': '凤姐的侄儿，来借玻璃炕屏，打断了刘姥姥开口。'
   };
   (map[id] || []).forEach((cid) => unlockCharacter(cid, deeds[cid]));
 }
@@ -1839,7 +1901,7 @@ function renderSettlementList() {
     const item = document.createElement('div');
     item.className = 'manual-item' + (discovered ? '' : ' undiscovered');
     item.innerHTML = `
-      ${discovered && h.image ? `<img src="${h.image}" alt="${h.title}" style="width:100%;max-height:100px;object-fit:cover;border-radius:6px;margin-bottom:8px;border:1px solid rgba(160,130,90,0.3);">` : ''}
+      ${discovered && h.image ? `<img src="${h.image}" alt="${h.title}" style="width:100%;max-height:140px;object-fit:contain;border-radius:6px;margin-bottom:8px;border:1px solid rgba(160,130,90,0.3);background:rgba(250,245,235,0.5);">` : ''}
       <h4>${discovered ? h.title : '???'}</h4>
       <p>${discovered ? h.surface : '尚未发现这个文化细节。'}</p>
     `;
@@ -1871,6 +1933,11 @@ function renderShareSummary(title, amount, count) {
   const summary = document.getElementById('share-summary');
   if (!summary) return;
   const termCount = state.unlockedTerms.size;
+  const unlockedChars = relationshipGraph.nodes.filter((n) => state.unlockedCharacters.has(n.id));
+  const charAvatars = unlockedChars.map((n) =>
+    `<div class="share-char"><img src="${n.portrait}" alt="${n.name}" onerror="this.style.display='none'"><span>${n.name}</span></div>`
+  ).join('');
+
   summary.innerHTML = `
     <div class="share-card-inner">
       <div class="share-card-header">《红楼梦》第六回</div>
@@ -1882,10 +1949,17 @@ function renderShareSummary(title, amount, count) {
         <div class="share-stat"><span class="share-stat-num">${termCount}</span><span class="share-stat-label">点亮词汇</span></div>
         <div class="share-stat"><span class="share-stat-num">${state.renqing}</span><span class="share-stat-label">人情值剩余</span></div>
       </div>
+      <div class="share-card-chars">
+        <div class="share-card-chars-title">点亮的人物</div>
+        <div class="share-card-chars-list">${charAvatars}</div>
+      </div>
       <div class="share-card-footer">互动叙事 · 语言学习</div>
     </div>
   `;
 }
+
+let currentShareCanvas = null;
+let currentShareFile = null;
 
 async function shareSummary() {
   const summary = document.getElementById('share-summary');
@@ -1897,29 +1971,60 @@ async function shareSummary() {
   }
 
   try {
-    const canvas = await html2canvas(summary, { backgroundColor: null, scale: 3, useCORS: true });
+    // 临时把卡片放到可视区域并取消隐藏相关样式，确保 html2canvas 能正确渲染
+    const originalDisplay = summary.style.display;
+    summary.style.display = 'block';
+    const canvas = await html2canvas(summary, {
+      backgroundColor: '#faf5eb',
+      scale: 3,
+      useCORS: true,
+      logging: false
+    });
+    summary.style.display = originalDisplay;
+
+    currentShareCanvas = canvas;
     const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/png'));
-    const file = new File([blob], 'liulaolao-summary.png', { type: 'image/png' });
+    currentShareFile = new File([blob], 'liulaolao-summary.png', { type: 'image/png' });
 
-    // 如果浏览器支持分享文件，直接调起系统分享
-    if (navigator.canShare && navigator.canShare({ files: [file] })) {
-      try {
-        await navigator.share({
-          title: '刘姥姥一进荣国府',
-          text: '看看我这一趟进贾府的成绩！',
-          files: [file]
-        });
-        return;
-      } catch (e) {}
+    // 显示预览模态框
+    if (sharePreviewImage) {
+      sharePreviewImage.innerHTML = '';
+      const img = document.createElement('img');
+      img.src = canvas.toDataURL('image/png');
+      img.alt = '成就分享图';
+      sharePreviewImage.appendChild(img);
     }
-
-    // 否则直接下载图片
-    const link = document.createElement('a');
-    link.download = 'liulaolao-summary.png';
-    link.href = canvas.toDataURL('image/png');
-    link.click();
+    if (sharePreviewModal) sharePreviewModal.classList.remove('hidden');
   } catch (e) {
     alert('截图失败：' + e.message);
+  }
+}
+
+function closeSharePreview() {
+  if (sharePreviewModal) sharePreviewModal.classList.add('hidden');
+}
+
+function downloadShareImage() {
+  if (!currentShareCanvas) return;
+  const link = document.createElement('a');
+  link.download = 'liulaolao-summary.png';
+  link.href = currentShareCanvas.toDataURL('image/png');
+  link.click();
+}
+
+async function systemShareImage() {
+  if (!currentShareFile) return;
+  if (navigator.canShare && navigator.canShare({ files: [currentShareFile] })) {
+    try {
+      await navigator.share({
+        title: '刘姥姥一进荣国府',
+        text: '看看我这一趟进贾府的成绩！',
+        files: [currentShareFile]
+      });
+    } catch (e) {}
+  } else {
+    alert('当前浏览器不支持系统分享图片，已为您下载。');
+    downloadShareImage();
   }
 }
 
@@ -2269,6 +2374,35 @@ shareBtn.addEventListener('click', (e) => {
   e.stopPropagation();
   shareSummary();
 });
+
+if (sharePreviewClose) {
+  sharePreviewClose.addEventListener('click', (e) => {
+    e.stopPropagation();
+    closeSharePreview();
+  });
+}
+
+if (sharePreviewDownload) {
+  sharePreviewDownload.addEventListener('click', (e) => {
+    e.stopPropagation();
+    downloadShareImage();
+  });
+}
+
+if (sharePreviewShare) {
+  sharePreviewShare.addEventListener('click', (e) => {
+    e.stopPropagation();
+    systemShareImage();
+  });
+}
+
+if (sharePreviewModal) {
+  sharePreviewModal.addEventListener('click', (e) => {
+    if (e.target === sharePreviewModal || e.target.classList.contains('share-preview-bg')) {
+      closeSharePreview();
+    }
+  });
+}
 
 // 初始化
 updateCounts();
