@@ -32,42 +32,9 @@ const prologueData = {
       "从现在起，你就是刘姥姥。"
     ],
     btn: "继续",
-    layout: "card",
-    extra: [
-      { title: "刘姥姥", portrait: "assets/ch_liu_laolao_before.png", text: "六十多岁的乡下老太太。就是你。" }
-    ]
+    layout: "card"
   },
   3: {
-    title: "你和贾家，是什么关系？",
-    bg: "assets/cg_main_gate.png",
-    lines: [
-      "二十年前，你女婿家和王家「连过宗」——就是认了一门亲戚。",
-      "可是后来两家不走动了，就慢慢远了。",
-      "现在，你要拿这门「很远很远」的亲戚关系，去敲一个大户人家的门。"
-    ],
-    btn: "继续",
-    layout: "card",
-    extra: [
-      { title: "王夫人", portrait: "assets/ch_lady_wang.png", text: "贾家的太太。很多年前，两家认过亲戚。" },
-      { title: "王狗儿", portrait: "assets/ch_gouer.png", text: "刘姥姥的女婿。" },
-      { title: "板儿", portrait: "assets/ch_liulaolao_baner.png", text: "刘姥姥带的外孙。" }
-    ]
-  },
-  4: {
-    title: "你会遇到谁？",
-    bg: "assets/cg_main_gate.png",
-    lines: ["这一路上，你会遇到这些人。"],
-    btn: "我记住他们了",
-    layout: "card",
-    extra: [
-      { title: "刘姥姥", portrait: "assets/ch_liu_laolao_before.png", text: "六十多岁的乡下老太太。就是你。" },
-      { title: "板儿", portrait: "assets/ch_liulaolao_baner.png", text: "你的外孙，五六岁，跟你一起去。" },
-      { title: "周瑞家的", portrait: "assets/ch_zhou_rui_wife.png", text: "贾家的女仆。她丈夫以前受过你女婿家的帮助，所以愿意帮你。" },
-      { title: "平儿", portrait: "assets/ch_ping_er.png", text: "王熙凤身边的大丫头。年轻、漂亮、穿得很好。" },
-      { title: "王熙凤", portrait: "assets/ch_wang_xifeng.png", text: "贾家现在管事的年轻女人，不到二十岁，特别能干。" }
-    ]
-  },
-  5: {
     title: "你的任务",
     bg: "assets/cg_main_gate.png",
     lines: ["这一趟，你要做的事："],
@@ -75,7 +42,7 @@ const prologueData = {
       "走进荣国府，见到管事的王熙凤。",
       "见到她的时候，认真说话，不要失去礼貌。",
       "看一看他们吃什么、穿什么、用什么——和你家有什么不一样。",
-      "看到不懂的东西，点它一下，收进你的「文化手册」。"
+      "看到不懂的东西，点它一下，收进你的「游戏手册」。"
     ],
     btn: "出发",
     layout: "card"
@@ -101,7 +68,30 @@ const portraitMap = {
 };
 
 // ============================
-// 人物谱数据
+// 人物关系网数据
+// ============================
+const relationshipGraph = {
+  nodes: [
+    { id: 'liulaolao', name: '刘姥姥', x: 0.5, y: 0.78, portrait: 'assets/ch_liu_laolao_before.png', intro: '六十多岁的乡下老太太。这一趟，你就是她。', unlocked: true },
+    { id: 'baner', name: '板儿', x: 0.3, y: 0.78, portrait: 'assets/ch_liulaolao_baner.png', intro: '刘姥姥的外孙，五六岁，跟她一起去荣国府。', unlocked: false },
+    { id: 'gouer', name: '狗儿', x: 0.7, y: 0.78, portrait: 'assets/ch_gouer.png', intro: '刘姥姥的女婿。家里穷，爱生闷气。', unlocked: false },
+    { id: 'zhou', name: '周瑞家的', x: 0.2, y: 0.45, portrait: 'assets/ch_zhou_rui_wife.png', intro: '贾家的女仆。她丈夫受过狗儿父亲的帮助，所以愿意帮刘姥姥。', unlocked: false },
+    { id: 'ping', name: '平儿', x: 0.5, y: 0.22, portrait: 'assets/ch_ping_er.png', intro: '王熙凤身边的大丫头。年轻、漂亮、穿得很好。', unlocked: false },
+    { id: 'xifeng', name: '王熙凤', x: 0.8, y: 0.22, portrait: 'assets/ch_wang_xifeng.png', intro: '贾家现在管事的年轻女人，不到二十岁，特别能干。', unlocked: false }
+  ],
+  edges: [
+    { from: 'liulaolao', to: 'baner', label: '祖孙' },
+    { from: 'liulaolao', to: 'gouer', label: '女婿' },
+    { from: 'gouer', to: 'zhou', label: '旧恩' },
+    { from: 'liulaolao', to: 'zhou', label: '求引路' },
+    { from: 'zhou', to: 'ping', label: '通传' },
+    { from: 'ping', to: 'xifeng', label: '伺候' },
+    { from: 'liulaolao', to: 'xifeng', label: '远亲·求助' }
+  ]
+};
+
+// ============================
+// 人物谱数据（兼容旧版）
 // ============================
 const characters = [
   { id: 'liulaolao', name: '刘姥姥', portrait: 'assets/ch_liu_laolao_before.png', role: '六十多岁的乡下老太太。你就是她。' },
@@ -129,16 +119,36 @@ const nodeTitles = {
   'node_13': '贾蓉插曲',
   'node_13b': '收下银子',
   'node_14': '尾声·回望',
-  'node_15': '文化结算',
-  'failure_gate': '被拦在门外',
-  'failure_zhou': '人情耗尽',
-  'failure_zhou2': '周瑞家的不再接话',
-  'failure_hall': '没见到凤姐',
-  'failure_xifeng': '被客气送走'
+  'node_15': '游戏手册结算'
 };
 
 // ============================
-// 故事数据：16 个节点，7 个选择点，7 个文化热点
+// 任务系统
+// ============================
+const quests = [
+  { id: 'enter_gate', title: '进入荣国府', desc: '从角门进入贾府，不要被人拦下。', completed: false },
+  { id: 'meet_zhou', title: '见到周瑞家的', desc: '找到周瑞家的，请她帮你引路。', completed: false },
+  { id: 'meet_xifeng', title: '见到王熙凤', desc: '穿过倒厅，见到琏二奶奶。', completed: false },
+  { id: 'get_silver', title: '拿到银子', desc: '无论多少，开口求助总算有个结果。', completed: false },
+  { id: 'collect_all', title: '文化之眼', desc: '收集全部 7 个文化热点。', completed: false }
+];
+
+function completeQuest(id) {
+  const q = quests.find((x) => x.id === id);
+  if (q && !q.completed) {
+    q.completed = true;
+    logEvent('quest_complete', { questId: id, questTitle: q.title });
+  }
+}
+
+function checkAllHotspotsQuest() {
+  if (state.discoveredHotspots.size >= 7) {
+    completeQuest('collect_all');
+  }
+}
+
+// ============================
+// 故事数据：16 个节点
 // ============================
 const storyData = {
   "node_1": {
@@ -214,7 +224,7 @@ const storyData = {
     "pages": [
       { "speaker": "旁白", "text": "只见几个挺着胸、叉着腰的人，坐在大门上说东说西，不理你。" }
     ],
-    "convergeTo": "node_3_branch",
+    "convergeTo": "node_4",
     "options": [
       {
         "id": "a",
@@ -240,28 +250,6 @@ const storyData = {
     ],
     "hotspots": []
   },
-  "node_3_branch": {
-    "type": "branch",
-    "condition": function() { return state.renqing <= 55; },
-    "trueId": "failure_gate",
-    "falseId": "node_4",
-    "hotspots": []
-  },
-  "failure_gate": {
-    "bg": "assets/bg_n03_corner_gate_outside.png",
-    "camera": "wide",
-    "transition": "page-flip",
-    "type": "settlement",
-    "pages": [
-      { "speaker": "旁白", "text": "那几个看门的人听了你的话，互相看了看，又低下头去说自己的。" },
-      { "speaker": "旁白", "text": "你又在寒风里站了一会儿，没人再理你。" },
-      { "speaker": "旁白", "text": "板儿拉了拉你的袖子：「姥姥，我冷。」" },
-      { "speaker": "旁白", "text": "你叹了口气，只能带着他回去了。" }
-    ],
-    "endingTitle": "被拦在门外",
-    "endingRating": "你连门都没能进去。在贾府，说错一句话，门就不会为你打开。",
-    "hotspots": []
-  },
   "node_4": {
     "bg": "assets/bg_n04_backdoor_market.png",
     "camera": "medium",
@@ -277,7 +265,7 @@ const storyData = {
       { "speaker": "孩子", "text": "周大妈，有个老奶奶子找你呢！" },
       { "speaker": "周瑞家的", "text": "是哪位？" }
     ],
-    "convergeTo": "node_4_branch",
+    "convergeTo": "node_5",
     "options": [
       {
         "id": "a",
@@ -301,26 +289,6 @@ const storyData = {
         "renqingReason": "绕圈子没直接说明来意，显得不够坦诚。"
       }
     ],
-    "hotspots": []
-  },
-  "node_4_branch": {
-    "type": "branch",
-    "condition": function() { return state.renqing <= 40; },
-    "trueId": "failure_zhou",
-    "falseId": "node_5",
-    "hotspots": []
-  },
-  "failure_zhou": {
-    "bg": "assets/bg_n04_red_gate.png",
-    "camera": "wide",
-    "transition": "page-flip",
-    "type": "settlement",
-    "pages": [
-      { "speaker": "旁白", "text": "周瑞家的听了几句，脸上的笑淡了下来。" },
-      { "speaker": "周瑞家的", "text": "姥姥，今天不巧，改日再说吧。" }
-    ],
-    "endingTitle": "人情耗尽",
-    "endingRating": "你还没摸清这家人说话的门道。周瑞家的客气地把你送了出来，连二奶奶的面都没见上。",
     "hotspots": []
   },
   "node_5": {
@@ -357,7 +325,7 @@ const storyData = {
       { "speaker": "周瑞家的", "text": "要说嘴上的功夫，十个会说话的男人也说不过她。" },
       { "speaker": "周瑞家的", "text": "只有一件——她对下人未免太严了些儿。" }
     ],
-    "convergeTo": "node_6_branch",
+    "convergeTo": "node_7",
     "options": [
       {
         "id": "a",
@@ -383,39 +351,32 @@ const storyData = {
     ],
     "hotspots": []
   },
-  "node_6_branch": {
-    "type": "branch",
-    "condition": function() { return state.renqing <= 25; },
-    "trueId": "failure_zhou2",
-    "falseId": "node_7",
-    "hotspots": []
-  },
-  "failure_zhou2": {
-    "bg": "assets/bg_n05_tea_set.png",
-    "camera": "wide",
-    "transition": "page-flip",
-    "type": "settlement",
-    "pages": [
-      { "speaker": "旁白", "text": "周瑞家的脸上的笑淡了下来。" },
-      { "speaker": "周瑞家的", "text": "姥姥，今天奶奶忙着呢，改日我再替你回一声吧。" },
-      { "speaker": "旁白", "text": "她没再留你，只是叫小丫头把你送到了后门。" }
-    ],
-    "endingTitle": "周瑞家的不再接话",
-    "endingRating": "你失了礼数，周瑞家的不愿意再帮你。进贾府的路，到这里就断了。",
-    "hotspots": []
-  },
   "node_7": {
     "bg": "assets/bg_n07_daoting_yard.png",
     "camera": "medium",
     "transition": "page-flip",
-    "pages": [
-      { "speaker": "旁白", "text": "周瑞家的起身，带你和板儿出了屋子，往倒厅来。" },
-      { "speaker": "旁白", "text": "她把刘姥姥安插在那里等着，自己先过了影壁，进了院门。" },
-      { "speaker": "旁白", "text": "知道凤姐还没出来，先找着凤姐的一个心腹通房大丫头——名唤平儿的。" },
-      { "speaker": "周瑞家的", "text": "今天大老远地来请安。当年太太是常跟她见的，所以我带了她过来。等奶奶下来，我细细回明了，想来奶奶也不至于怪我莽撞。" },
-      { "speaker": "平儿", "text": "叫他们进来，先在这里坐着就是了。" },
-      { "speaker": "旁白", "text": "周瑞家的这才出去，领了他们进来。" }
-    ],
+    "dynamicPages": true,
+    "pages": function() {
+      const rq = state.renqing;
+      const kind = rq >= 70;
+      const base = [
+        { "speaker": "旁白", "text": "周瑞家的起身，带你和板儿出了屋子，往倒厅来。" },
+        { "speaker": "旁白", "text": "她把刘姥姥安插在那里等着，自己先过了影壁，进了院门。" },
+        { "speaker": "旁白", "text": "知道凤姐还没出来，先找着凤姐的一个心腹通房大丫头——名唤平儿的。" }
+      ];
+      if (kind) {
+        base.push({ "speaker": "周瑞家的", "text": "平姑娘，这位姥姥虽是乡下人，说话却极知礼，又难得一片诚心。奶奶若得空，还求你替我说句方便话。" });
+        base.push({ "speaker": "平儿", "text": "周大娘既这么说，我叫他们进来，先在这里坐着就是了。" });
+      } else if (rq >= 40) {
+        base.push({ "speaker": "周瑞家的", "text": "平姑娘，这位姥姥大老远来的，是太太一门老亲，求你通传一声。" });
+        base.push({ "speaker": "平儿", "text": "叫他们进来，先在这里坐着就是了。" });
+      } else {
+        base.push({ "speaker": "周瑞家的", "text": "平姑娘，这位姥姥是太太的亲戚，来求见奶奶一面。" });
+        base.push({ "speaker": "平儿", "text": "嗯，叫他们进来等着吧。" });
+      }
+      base.push({ "speaker": "旁白", "text": "周瑞家的这才出去，领了他们进来。" });
+      return base;
+    },
     "nextId": "node_8",
     "hotspots": []
   },
@@ -432,7 +393,7 @@ const storyData = {
       { "speaker": "旁白", "text": "平儿站在炕沿边，打量了刘姥姥两眼，只好问个好、让了坐。" },
       { "speaker": "刘姥姥", "text": "这姑娘满身绫罗，插金戴银，花容月貌——一定是凤姐儿了！" }
     ],
-    "convergeTo": "node_8_branch",
+    "convergeTo": "node_9",
     "options": [
       {
         "id": "a",
@@ -471,27 +432,6 @@ const storyData = {
         "image": "assets/hotspot_10_redfeltcurtain.png"
       }
     ]
-  },
-  "node_8_branch": {
-    "type": "branch",
-    "condition": function() { return state.renqing <= 10; },
-    "trueId": "failure_hall",
-    "falseId": "node_9",
-    "hotspots": []
-  },
-  "failure_hall": {
-    "bg": "assets/bg_n07_daoting_yard.png",
-    "camera": "wide",
-    "transition": "page-flip",
-    "type": "settlement",
-    "pages": [
-      { "speaker": "旁白", "text": "平儿脸上的笑淡了下来，悄悄看了周瑞家的一眼。" },
-      { "speaker": "周瑞家的", "text": "姥姥，今日不巧，奶奶身子不便，您还是先回吧。" },
-      { "speaker": "旁白", "text": "你还没来得及看清那屋子，就被送了出来。" }
-    ],
-    "endingTitle": "没见到凤姐",
-    "endingRating": "你在堂屋里说错了话，连凤姐的面都没见上。",
-    "hotspots": []
   },
   "node_9": {
     "bg": "assets/bg_n09_hall_clock.png",
@@ -572,7 +512,7 @@ const storyData = {
       { "speaker": "旁白", "text": "凤姐也不接茶，也不抬头，只管拨那灰，慢慢地说：" },
       { "speaker": "王熙凤", "text": "怎么还不请进来？" }
     ],
-    "convergeTo": "node_11_branch",
+    "convergeTo": "node_12",
     "options": [
       {
         "id": "a",
@@ -625,41 +565,37 @@ const storyData = {
       }
     ]
   },
-  "node_11_branch": {
-    "type": "branch",
-    "condition": function() { return state.renqing <= 0; },
-    "trueId": "failure_xifeng",
-    "falseId": "node_12",
-    "hotspots": []
-  },
-  "failure_xifeng": {
-    "bg": "assets/bg_n03_corner_gate_outside.png",
-    "camera": "wide",
-    "transition": "page-flip",
-    "type": "settlement",
-    "pages": [
-      { "speaker": "旁白", "text": "凤姐抬眼看了看你，笑容淡了些。" },
-      { "speaker": "王熙凤", "text": "姥姥远来辛苦，回去替我问候家里吧。" }
-    ],
-    "endingTitle": "被客气送走",
-    "endingRating": "你失了礼数，凤姐没有发作，只是客气地把你送了出来。二十两银子，终究没能开口求到。",
-    "hotspots": []
-  },
   "node_12": {
     "bg": "assets/bg_n11_xifeng_room.png",
     "camera": "medium",
     "transition": "fade",
-    "pages": [
-      { "speaker": "王熙凤", "text": "周姐姐，搀着不拜罢。我年轻，不大认得，也不知是什么辈数儿，不敢称呼。" },
-      { "speaker": "周瑞家的", "text": "这就是我才回的那个姥姥了。" },
-      { "speaker": "旁白", "text": "凤姐点点头。刘姥姥已经在炕沿上坐下了。" },
-      { "speaker": "旁白", "text": "板儿便躲在她背后，百般哄他出来作揖，他死也不肯。" },
-      { "speaker": "王熙凤", "text": "亲戚们不大走动，都疏远了。知道的呢，说你们嫌我们，不肯常来；不知道的那些小人，还只当我们眼里没人似的。" },
-      { "speaker": "刘姥姥", "text": "我们家道艰难，走不起。来到这里，没的给姑奶奶打嘴——就是管家爷们瞧着也不像。" },
-      { "speaker": "王熙凤", "text": "这话没的叫人恶心。不过托赖着祖父的虚名，作个穷官儿罢了。谁家有什么？不过也是个空架子。俗语儿说得好：「朝廷还有三门子穷亲呢」，何况你我？" },
-      { "speaker": "王熙凤", "text": "你去瞧瞧。要是有人就罢；要是得闲呢，就回了，看怎么说。" },
-      { "speaker": "旁白", "text": "周瑞家的答应着去了。" }
-    ],
+    "dynamicPages": true,
+    "pages": function() {
+      const rq = state.renqing;
+      const lines = [];
+      lines.push({ "speaker": "王熙凤", "text": "周姐姐，搀着不拜罢。我年轻，不大认得，也不知是什么辈数儿，不敢称呼。" });
+      lines.push({ "speaker": "周瑞家的", "text": "这就是我才回的那个姥姥了。" });
+      lines.push({ "speaker": "旁白", "text": "凤姐点点头。刘姥姥已经在炕沿上坐下了。" });
+      lines.push({ "speaker": "旁白", "text": "板儿便躲在她背后，百般哄他出来作揖，他死也不肯。" });
+      if (rq >= 70) {
+        lines.push({ "speaker": "王熙凤", "text": "亲戚们不大走动，都疏远了。知道的呢，说你们嫌弃我们；不知道的那些小人，还只当我们眼里没人似的。今儿既来了，就别外道。" });
+      } else if (rq >= 40) {
+        lines.push({ "speaker": "王熙凤", "text": "亲戚们不大走动，都疏远了。知道的呢，说你们嫌我们，不肯常来；不知道的那些小人，还只当我们眼里没人似的。" });
+      } else {
+        lines.push({ "speaker": "王熙凤", "text": "亲戚们不大走动，都疏远了。有话不妨直说，我这里也忙。" });
+      }
+      lines.push({ "speaker": "刘姥姥", "text": "我们家道艰难，走不起。来到这里，没的给姑奶奶打嘴——就是管家爷们瞧着也不像。" });
+      if (rq >= 70) {
+        lines.push({ "speaker": "王熙凤", "text": "这话没的叫人恶心。不过托赖着祖父的虚名，作个穷官儿罢了。谁家有什么？俗语儿说得好：「朝廷还有三门子穷亲呢」，何况你我？你且宽坐。" });
+      } else if (rq >= 40) {
+        lines.push({ "speaker": "王熙凤", "text": "这话没的叫人恶心。不过托赖着祖父的虚名，作个穷官儿罢了。谁家有什么？俗语儿说得好：「朝廷还有三门子穷亲呢」，何况你我？" });
+      } else {
+        lines.push({ "speaker": "王熙凤", "text": "朝廷还有三门子穷亲呢，何况你我？你既来了，也不能叫你空着手回去。" });
+      }
+      lines.push({ "speaker": "王熙凤", "text": "你去瞧瞧。要是有人就罢；要是得闲呢，就回了，看怎么说。" });
+      lines.push({ "speaker": "旁白", "text": "周瑞家的答应着去了。" });
+      return lines;
+    },
     "nextId": "node_13",
     "hotspots": [
       {
@@ -695,7 +631,7 @@ const storyData = {
       { "speaker": "旁白", "text": "凤姐起初不肯，贾蓉赔着笑求了半天，凤姐才答应，叫人抬给他。" },
       { "speaker": "旁白", "text": "这一来一回，刘姥姥都看在眼里：原来在这家里，连亲戚之间说话，也是要绕好几个弯的。" }
     ],
-    "convergeTo": "node_13_branch",
+    "convergeTo": "node_13b",
     "options": [
       {
         "id": "a",
@@ -721,23 +657,21 @@ const storyData = {
     ],
     "hotspots": []
   },
-  "node_13_branch": {
-    "type": "branch",
-    "condition": function() { return state.renqing <= 0; },
-    "trueId": "failure_xifeng",
-    "falseId": "node_13b",
-    "hotspots": []
-  },
   "node_13b": {
     "bg": "assets/cg_receiving_silver.png",
     "camera": "medium",
     "transition": "page-flip",
-    "pages": [
-      { "speaker": "旁白", "text": "凤姐叫人取了二十两银子来。" },
-      { "speaker": "旁白", "text": "又听见凤姐说：「这是太太的意思，你拿去给孩子做件冬衣。」" },
-      { "speaker": "刘姥姥", "text": "谢谢姑奶奶，谢谢太太。" },
-      { "speaker": "旁白", "text": "你接过银子，揣进怀里，带着板儿退了出来。" }
-    ],
+    "dynamicPages": true,
+    "pages": function() {
+      const amount = getSilverAmount();
+      const unit = amount >= 20 ? '二十两' : amount >= 15 ? '十五两' : amount >= 10 ? '十两' : '五两';
+      return [
+        { "speaker": "旁白", "text": `凤姐叫人取了${unit}银子来。` },
+        { "speaker": "旁白", "text": "又听见凤姐说：「这是太太的意思，你拿去给孩子做件冬衣。」" },
+        { "speaker": "刘姥姥", "text": "谢谢姑奶奶，谢谢太太。" },
+        { "speaker": "旁白", "text": "你接过银子，揣进怀里，带着板儿退了出来。" }
+      ];
+    },
     "nextId": "node_14",
     "hotspots": []
   },
@@ -771,12 +705,6 @@ const storyData = {
     "hotspots": []
   }
 };
-
-
-
-
-
-
 
 // ============================
 // 词汇表
@@ -821,19 +749,23 @@ const state = {
   currentPageIndex: 0,
   renqing: 100,
   discoveredHotspots: new Set(),
+  unlockedTerms: new Set(),
+  unlockedCharacters: new Set(),
   feedbackMode: false,
   lastFeedback: null,
   lastConvergeTo: null,
-  prologueStep: -1
+  prologueStep: -1,
+  pendingErrorModal: null
 };
+
+// 默认解锁主角
+state.unlockedCharacters.add('liulaolao');
 
 // ============================
 // 开发者数据分析（玩家不可见）
 // ============================
 const ANALYTICS = {
-  // 方案 A：localStorage（默认，零配置）
-  // 方案 B：填入 Supabase/Cloudflare 等远程 endpoint 和 key
-  provider: 'supabase', // 'local' | 'supabase' | 'generic'
+  provider: 'supabase',
   endpoint: 'https://jmdaqowrzsfmahcloksp.supabase.co/rest/v1/game_events',
   apiKey: 'sb_publishable_sSCEg_e7WuyEpiRvWEHWGg_U3E12Mwu',
   table: 'game_events',
@@ -861,7 +793,6 @@ function storeEvent(event) {
   try {
     localStorage.setItem('ll_game_events', JSON.stringify(events.slice(-3000)));
   } catch (e) {
-    // 存储满了就清空旧的
     localStorage.setItem('ll_game_events', JSON.stringify([event]));
   }
 }
@@ -891,7 +822,6 @@ function logEvent(type, detail = {}) {
     } else if (ANALYTICS.apiKey) {
       headers['Authorization'] = `Bearer ${ANALYTICS.apiKey}`;
     }
-    // Supabase 表字段是 snake_case，上传前转换
     const payload = ANALYTICS.provider === 'supabase' ? {
       type: event.type,
       session_id: event.sessionId,
@@ -984,10 +914,6 @@ const manualBtn = document.getElementById('manual-btn');
 const manualCount = document.getElementById('manual-count');
 const panelCount = document.getElementById('panel-count');
 const closeManual = document.getElementById('close-manual');
-const charsBtn = document.getElementById('chars-btn');
-const charsPanel = document.getElementById('chars-panel');
-const charsList = document.getElementById('chars-list');
-const closeChars = document.getElementById('close-chars');
 const progressEl = document.getElementById('progress');
 const locationTitle = document.getElementById('location-title');
 const startScreen = document.getElementById('start-screen');
@@ -1015,6 +941,21 @@ const coverPanel = document.getElementById('cover-panel');
 const coverPanelTitle = document.getElementById('cover-panel-title');
 const coverPanelBody = document.getElementById('cover-panel-body');
 const coverPanelClose = document.getElementById('cover-panel-close');
+const homeBtn = document.getElementById('home-btn');
+const saveBtn = document.getElementById('save-btn');
+const errorModal = document.getElementById('error-modal');
+const errorModalTitle = document.getElementById('error-modal-title');
+const errorModalText = document.getElementById('error-modal-text');
+const errorModalReason = document.getElementById('error-modal-reason');
+const errorModalContinue = document.getElementById('error-modal-continue');
+const relationPanel = document.getElementById('relation-panel');
+const relationSvg = document.getElementById('relation-svg');
+const relationList = document.getElementById('relation-list');
+const closeRelation = document.getElementById('close-relation');
+const relationBtn = document.getElementById('relation-btn');
+const manualTabs = document.querySelectorAll('.manual-tab');
+const manualSections = document.querySelectorAll('.manual-section');
+const shareBtn = document.getElementById('share-btn');
 
 // ============================
 // 工具函数
@@ -1058,8 +999,8 @@ function hideTooltip() {
 
 function updateCounts() {
   const count = state.discoveredHotspots.size;
-  manualCount.textContent = `${count}/7`;
-  panelCount.textContent = `${count}/7`;
+  if (manualCount) manualCount.textContent = `${count}/7`;
+  if (panelCount) panelCount.textContent = `${count}/7`;
 }
 
 function updateHP() {
@@ -1080,8 +1021,85 @@ function showHPChange(cost, reason) {
   }, 2200);
 }
 
+function getSilverAmount() {
+  const rq = state.renqing;
+  if (rq >= 80) return 20;
+  if (rq >= 60) return 15;
+  if (rq >= 40) return 10;
+  return 5;
+}
+
+function getSilverText(amount) {
+  const map = { 20: '二十两', 15: '十五两', 10: '十两', 5: '五两' };
+  return map[amount] || amount + '两';
+}
+
+function getEndingTitle(amount) {
+  if (amount >= 20) return '圆满而归';
+  if (amount >= 15) return '善始善终';
+  if (amount >= 10) return '有得有失';
+  return '勉强救急';
+}
+
+function getEndingRating(amount, hotspots) {
+  if (amount >= 20 && hotspots >= 7) return '「洞察人情」——你话说到位，礼数周全，眼睛也亮。这一趟，算是把贾府的门道看出几分了。';
+  if (amount >= 20) return '「人情练达」——你一句也没说错，银子拿到了，礼数也周全。这家人心里是认你的。';
+  if (amount >= 15) return '「善始善终」——你大体上守住了规矩，银子拿到了，但有几处还可以更圆滑。';
+  if (amount >= 10) return '「有得有失」——你拿到了银子，可话说得磕磕绊绊，全仗周瑞家的帮衬。';
+  return '「勉强救急」——你虽走到了最后，人情却已用尽。这点银子，只够应付眼前。';
+}
+
+function unlockCharacter(id, deed) {
+  if (!state.unlockedCharacters.has(id)) {
+    state.unlockedCharacters.add(id);
+    const node = relationshipGraph.nodes.find((n) => n.id === id);
+    if (node && deed) {
+      node.deed = deed;
+    }
+    logEvent('character_unlock', { characterId: id, deed });
+  }
+}
+
+function unlockTerm(term) {
+  if (!state.unlockedTerms.has(term)) {
+    state.unlockedTerms.add(term);
+    logEvent('term_unlock', { term });
+  }
+}
+
+function getNodePages(node) {
+  if (node.dynamicPages && typeof node.pages === 'function') {
+    return node.pages();
+  }
+  return node.pages || [];
+}
+
 function renderManual() {
-  manualList.innerHTML = '';
+  renderManualQuests();
+  renderManualHotspots();
+  renderManualTerms();
+  renderManualCharacters();
+}
+
+function renderManualQuests() {
+  const el = document.getElementById('manual-quests');
+  if (!el) return;
+  el.innerHTML = '';
+  quests.forEach((q) => {
+    const item = document.createElement('div');
+    item.className = 'manual-item' + (q.completed ? '' : ' undiscovered');
+    item.innerHTML = `
+      <h4>${q.completed ? '✓ ' : ''}${q.title}</h4>
+      <p>${q.desc}</p>
+    `;
+    el.appendChild(item);
+  });
+}
+
+function renderManualHotspots() {
+  const el = document.getElementById('manual-hotspots');
+  if (!el) return;
+  el.innerHTML = '';
   const allHotspots = [];
   Object.values(storyData).forEach((node) => {
     (node.hotspots || []).forEach((h) => allHotspots.push(h));
@@ -1098,32 +1116,163 @@ function renderManual() {
       ${discovered && h.culture ? `<p>文化意思：${h.culture}</p>` : ''}
       ${discovered ? `<p class="source">${h.source}</p>` : ''}
     `;
-    manualList.appendChild(item);
+    el.appendChild(item);
   });
 }
 
-function renderCharsPanel() {
-  charsList.innerHTML = '';
-  characters.forEach((c) => {
-    const card = document.createElement('div');
-    card.className = 'char-card';
-    card.innerHTML = `
-      <img src="${c.portrait}" alt="${c.name}" onerror="this.classList.add('load-error')">
-      <div>
-        <h4>${c.name}</h4>
-        <p>${c.role}</p>
-      </div>
+function renderManualTerms() {
+  const el = document.getElementById('manual-terms');
+  if (!el) return;
+  el.innerHTML = '';
+  Object.entries(terms).forEach(([term, def]) => {
+    const discovered = state.unlockedTerms.has(term);
+    const item = document.createElement('div');
+    item.className = 'manual-item' + (discovered ? '' : ' undiscovered');
+    item.innerHTML = `
+      <h4>${discovered ? term : '???'}</h4>
+      <p>${discovered ? def : '点击对话中的高亮词，解锁释义。'}</p>
     `;
-    charsList.appendChild(card);
+    el.appendChild(item);
   });
+}
+
+function renderManualCharacters() {
+  const el = document.getElementById('manual-characters');
+  if (!el) return;
+  el.innerHTML = '';
+  relationshipGraph.nodes.forEach((n) => {
+    const unlocked = state.unlockedCharacters.has(n.id);
+    const item = document.createElement('div');
+    item.className = 'manual-item char-manual-item' + (unlocked ? '' : ' undiscovered');
+    item.innerHTML = `
+      <div class="char-manual-header">
+        ${unlocked ? `<img src="${n.portrait}" alt="${n.name}" onerror="this.style.display='none'">` : `<div class="char-manual-placeholder">?</div>`}
+        <div>
+          <h4>${unlocked ? n.name : '???'}</h4>
+          <p>${unlocked ? n.intro : '游戏过程中解锁此人。'}</p>
+        </div>
+      </div>
+      ${unlocked && n.deed ? `<p class="char-deed"><strong>事迹：</strong>${n.deed}</p>` : ''}
+    `;
+    el.appendChild(item);
+  });
+}
+
+function renderRelationPanel() {
+  if (!relationSvg) return;
+  relationSvg.innerHTML = '';
+  const w = relationSvg.clientWidth || 600;
+  const h = relationSvg.clientHeight || 360;
+  const svgNS = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(svgNS, 'svg');
+  svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+  svg.style.width = '100%';
+  svg.style.height = '100%';
+
+  // 定义 clipPath，用于把人物头像裁成圆形
+  const defs = document.createElementNS(svgNS, 'defs');
+  relationshipGraph.nodes.forEach((n) => {
+    const clip = document.createElementNS(svgNS, 'clipPath');
+    clip.setAttribute('id', `clip-${n.id}`);
+    const circle = document.createElementNS(svgNS, 'circle');
+    circle.setAttribute('cx', n.x * w);
+    circle.setAttribute('cy', n.y * h);
+    circle.setAttribute('r', 32);
+    clip.appendChild(circle);
+    defs.appendChild(clip);
+  });
+  svg.appendChild(defs);
+
+  // 边
+  relationshipGraph.edges.forEach((e) => {
+    const from = relationshipGraph.nodes.find((n) => n.id === e.from);
+    const to = relationshipGraph.nodes.find((n) => n.id === e.to);
+    if (!from || !to) return;
+    const x1 = from.x * w;
+    const y1 = from.y * h;
+    const x2 = to.x * w;
+    const y2 = to.y * h;
+    const unlocked = state.unlockedCharacters.has(from.id) && state.unlockedCharacters.has(to.id);
+    const line = document.createElementNS(svgNS, 'line');
+    line.setAttribute('x1', x1);
+    line.setAttribute('y1', y1);
+    line.setAttribute('x2', x2);
+    line.setAttribute('y2', y2);
+    line.setAttribute('stroke', unlocked ? 'rgba(139,69,19,0.6)' : 'rgba(160,160,160,0.25)');
+    line.setAttribute('stroke-width', unlocked ? 2 : 1);
+    svg.appendChild(line);
+  });
+
+  // 节点
+  relationshipGraph.nodes.forEach((n) => {
+    const unlocked = state.unlockedCharacters.has(n.id);
+    const cx = n.x * w;
+    const cy = n.y * h;
+    const r = 34;
+    const circle = document.createElementNS(svgNS, 'circle');
+    circle.setAttribute('cx', cx);
+    circle.setAttribute('cy', cy);
+    circle.setAttribute('r', r);
+    circle.setAttribute('fill', unlocked ? 'rgba(250,245,235,0.95)' : 'rgba(220,220,220,0.4)');
+    circle.setAttribute('stroke', unlocked ? '#8B4513' : '#aaa');
+    circle.setAttribute('stroke-width', unlocked ? 3 : 1);
+    svg.appendChild(circle);
+
+    if (unlocked) {
+      const img = document.createElementNS(svgNS, 'image');
+      img.setAttribute('href', n.portrait);
+      img.setAttribute('x', cx - r + 2);
+      img.setAttribute('y', cy - r + 2);
+      img.setAttribute('width', (r - 2) * 2);
+      img.setAttribute('height', (r - 2) * 2);
+      img.setAttribute('preserveAspectRatio', 'xMidYMid slice');
+      img.setAttribute('clip-path', `url(#clip-${n.id})`);
+      svg.appendChild(img);
+    } else {
+      const text = document.createElementNS(svgNS, 'text');
+      text.setAttribute('x', cx);
+      text.setAttribute('y', cy + 6);
+      text.setAttribute('text-anchor', 'middle');
+      text.setAttribute('fill', '#999');
+      text.setAttribute('font-size', '22');
+      text.setAttribute('font-weight', 'bold');
+      text.textContent = '?';
+      svg.appendChild(text);
+    }
+
+    const label = document.createElementNS(svgNS, 'text');
+    label.setAttribute('x', cx);
+    label.setAttribute('y', cy + r + 20);
+    label.setAttribute('text-anchor', 'middle');
+    label.setAttribute('fill', unlocked ? '#6b4c2a' : '#999');
+    label.setAttribute('font-size', '14');
+    label.textContent = n.name;
+    svg.appendChild(label);
+  });
+
+  relationSvg.appendChild(svg);
+
+  if (relationList) {
+    relationList.innerHTML = '';
+    relationshipGraph.nodes.forEach((n) => {
+      const unlocked = state.unlockedCharacters.has(n.id);
+      const item = document.createElement('div');
+      item.className = 'relation-list-item' + (unlocked ? '' : ' locked');
+      item.innerHTML = `
+        <img src="${n.portrait}" alt="${n.name}" onerror="this.style.display='none'">
+        <div>
+          <h4>${n.name} ${unlocked ? '' : '<span class="locked-tag">未解锁</span>'}</h4>
+          <p>${unlocked ? n.intro : '游戏过程中解锁此人。'}</p>
+          ${unlocked && n.deed ? `<p class="char-deed"><strong>事迹：</strong>${n.deed}</p>` : ''}
+        </div>
+      `;
+      relationList.appendChild(item);
+    });
+  }
 }
 
 function updateProgress(id) {
   if (!progressEl) return;
-  if (id.startsWith('failure_')) {
-    progressEl.textContent = '结局';
-    return;
-  }
   const num = parseInt(id.replace('node_', ''), 10);
   if (!isNaN(num)) {
     progressEl.textContent = `第 ${num} / 16 幕`;
@@ -1215,6 +1364,7 @@ function renderHotspots(hotspots) {
 function showHotspotCard(hotspot) {
   recordHotspotClick(hotspot);
   state.discoveredHotspots.add(hotspot.id);
+  checkAllHotspotsQuest();
   updateCounts();
   renderManual();
 
@@ -1276,14 +1426,42 @@ function selectOption(option) {
   recordChoice(option, dwellMs);
 
   const cost = option.renqingCost || 0;
-  if (cost !== 0) {
-    state.renqing -= cost;
-    updateHP();
-    showHPChange(-cost, option.renqingReason || '');
+  state.renqing -= cost;
+  if (state.renqing < 0) state.renqing = 0;
+  updateHP();
+
+  if (cost > 0) {
+    showErrorModal(-cost, option.renqingReason || '', option.feedback);
+    return;
   }
+
   state.feedbackMode = true;
   state.lastFeedback = option.feedback;
   state.lastConvergeTo = option.nextId || getCurrentNode().convergeTo;
+  renderFeedback();
+}
+
+function showErrorModal(costDelta, reason, feedback) {
+  state.pendingErrorModal = { costDelta, reason, feedback };
+  if (!errorModal) {
+    // 兜底：如果 DOM 不存在，直接继续
+    dismissErrorModal();
+    return;
+  }
+  if (errorModalTitle) errorModalTitle.textContent = '话说得不太妥';
+  if (errorModalText) errorModalText.innerHTML = wrapTerms(`人情值 -${costDelta}：${reason}`);
+  if (errorModalReason) errorModalReason.textContent = feedback;
+  errorModal.classList.remove('hidden');
+}
+
+function dismissErrorModal() {
+  errorModal && errorModal.classList.add('hidden');
+  const data = state.pendingErrorModal;
+  state.pendingErrorModal = null;
+  if (!data) return;
+  state.feedbackMode = true;
+  state.lastFeedback = data.feedback;
+  state.lastConvergeTo = getCurrentNode().convergeTo;
   renderFeedback();
 }
 
@@ -1315,8 +1493,9 @@ function getCurrentNode() {
 
 function getCurrentPage() {
   const node = getCurrentNode();
-  if (!node || !node.pages) return null;
-  return node.pages[state.currentPageIndex] || null;
+  if (!node) return null;
+  const pages = getNodePages(node);
+  return pages[state.currentPageIndex] || null;
 }
 
 function renderCurrentPage() {
@@ -1327,6 +1506,8 @@ function renderCurrentPage() {
 }
 
 async function advance() {
+  if (state.pendingErrorModal) return;
+
   if (state.feedbackMode) {
     state.feedbackMode = false;
     state.lastFeedback = null;
@@ -1342,7 +1523,7 @@ async function advance() {
   if (!node) return;
 
   if (node.type === 'settlement') {
-    if (state.currentPageIndex < node.pages.length - 1) {
+    if (state.currentPageIndex < getNodePages(node).length - 1) {
       state.currentPageIndex++;
       renderCurrentPage();
     } else {
@@ -1351,7 +1532,7 @@ async function advance() {
     return;
   }
 
-  if (state.currentPageIndex < node.pages.length - 1) {
+  if (state.currentPageIndex < getNodePages(node).length - 1) {
     state.currentPageIndex++;
     renderCurrentPage();
     return;
@@ -1383,16 +1564,13 @@ async function renderNode(id) {
 
   recordNodeEnter(id);
 
+  // 节点触发的人物解锁
+  unlockCharactersForNode(id);
+  completeQuestsForNode(id);
+
   hideHotspotCard();
   hideTooltip();
   clearChoices();
-
-  // 分支节点不需要转场，直接跳转
-  if (node.type === 'branch') {
-    const nextId = node.condition() ? node.trueId : node.falseId;
-    await renderNode(nextId);
-    return;
-  }
 
   // 电影式转场
   const mode = node.transition || 'fade';
@@ -1422,6 +1600,31 @@ async function renderNode(id) {
   if (transitionOverlay) transitionOverlay.classList.remove('active');
   transitionOverlay && transitionOverlay.classList.remove('focus-pull');
   await delay(650);
+}
+
+function unlockCharactersForNode(id) {
+  const map = {
+    'node_1': ['gouer'],
+    'node_2': ['baner'],
+    'node_4': ['zhou'],
+    'node_7': ['ping'],
+    'node_11': ['xifeng']
+  };
+  const deeds = {
+    'gouer': '家里揭不开锅，坐在炕沿上生闷气。',
+    'baner': '五六岁，跟着刘姥姥进城见世面。',
+    'zhou': '受狗儿父亲旧恩，答应替刘姥姥通传。',
+    'ping': '凤姐身边大丫头，先替刘姥姥安排座位。',
+    'xifeng': '荣国府实际管家，最终给了刘姥姥银子。'
+  };
+  (map[id] || []).forEach((cid) => unlockCharacter(cid, deeds[cid]));
+}
+
+function completeQuestsForNode(id) {
+  if (id === 'node_3') completeQuest('enter_gate');
+  if (id === 'node_5') completeQuest('meet_zhou');
+  if (id === 'node_11') completeQuest('meet_xifeng');
+  if (id === 'node_13b') completeQuest('get_silver');
 }
 
 // ============================
@@ -1468,20 +1671,6 @@ function renderPrologue(step) {
   }
 
   prologueExtra.innerHTML = '';
-  if (data.extra && data.extra.length > 0) {
-    data.extra.forEach((item) => {
-      const card = document.createElement('div');
-      card.className = 'prologue-card';
-      card.innerHTML = `
-        ${item.portrait ? `<img src="${item.portrait}" alt="${item.title}" onerror="this.style.display='none'">` : ''}
-        <div>
-          <h4>${item.title}</h4>
-          <p>${item.text}</p>
-        </div>
-      `;
-      prologueExtra.appendChild(card);
-    });
-  }
 }
 
 function nextPrologue() {
@@ -1499,34 +1688,42 @@ function nextPrologue() {
 // ============================
 function showSettlement() {
   settlementScreen.classList.remove('hidden');
-  const node = getCurrentNode();
+  const amount = getSilverAmount();
   const count = state.discoveredHotspots.size;
-  const rq = state.renqing;
-  let title = '文化手册结算';
-  let rating = '';
+  const title = getEndingTitle(amount);
+  const rating = getEndingRating(amount, count);
 
-  if (node && node.endingTitle) {
-    title = node.endingTitle;
-  }
-  if (node && node.endingRating) {
-    rating = node.endingRating;
-  } else if (rq >= 100) {
-    rating = '「人情练达」——你一句也没说错，银子拿到了，礼数也周全。这家人心里是认你的。';
-  } else if (rq >= 80) {
-    rating = '「说话得体」——你大体上守住了规矩，银子拿到了，但有几处还可以更圆滑。';
-  } else if (rq >= 50) {
-    rating = '「勉强过关」——你拿到了银子，可话说得磕磕绊绊，全仗周瑞家的帮衬。';
-  } else {
-    rating = '「狼狈而归」——你虽走到了最后，人情却已用尽。这二十两银子，拿得并不体面。';
-  }
-
-  recordGameEnd(title, rq);
+  recordGameEnd(title, state.renqing);
+  checkAllHotspotsQuest();
 
   settlementScreen.querySelector('h2').textContent = title;
-  settlementCount.textContent = `你这一趟看见了 ${count}/7 个文化细节，人情值剩余 ${Math.max(0, rq)}。`;
+  settlementCount.textContent = `你这一趟拿到了 ${getSilverText(amount)}银子，发现了 ${count}/7 个文化细节，人情值剩余 ${Math.max(0, state.renqing)}。`;
   settlementRating.textContent = rating;
 
+  renderSettlementList();
+  renderShareSummary(title, amount, count);
+}
+
+function renderSettlementList() {
+  if (!settlementList) return;
   settlementList.innerHTML = '';
+
+  // 任务
+  const questSection = document.createElement('div');
+  questSection.className = 'settlement-section';
+  questSection.innerHTML = '<h3>完成的任务</h3>';
+  quests.forEach((q) => {
+    const item = document.createElement('div');
+    item.className = 'manual-item' + (q.completed ? '' : ' undiscovered');
+    item.innerHTML = `<h4>${q.completed ? '✓ ' : ''}${q.title}</h4><p>${q.desc}</p>`;
+    questSection.appendChild(item);
+  });
+  settlementList.appendChild(questSection);
+
+  // 文化热点
+  const hotspotSection = document.createElement('div');
+  hotspotSection.className = 'settlement-section';
+  hotspotSection.innerHTML = '<h3>解锁的文化热点</h3>';
   const allHotspots = [];
   Object.values(storyData).forEach((node) => {
     (node.hotspots || []).forEach((h) => allHotspots.push(h));
@@ -1539,11 +1736,64 @@ function showSettlement() {
       ${discovered && h.image ? `<img src="${h.image}" alt="${h.title}" style="width:100%;max-height:100px;object-fit:cover;border-radius:6px;margin-bottom:8px;border:1px solid rgba(160,130,90,0.3);">` : ''}
       <h4>${discovered ? h.title : '???'}</h4>
       <p>${discovered ? h.surface : '尚未发现这个文化细节。'}</p>
-      ${discovered && h.usage ? `<p>用处：${h.usage}</p>` : ''}
-      ${discovered && h.culture ? `<p>文化意思：${h.culture}</p>` : ''}
     `;
-    settlementList.appendChild(item);
+    hotspotSection.appendChild(item);
   });
+  settlementList.appendChild(hotspotSection);
+}
+
+function renderShareSummary(title, amount, count) {
+  const summary = document.getElementById('share-summary');
+  if (!summary) return;
+  summary.innerHTML = `
+    <h3>《刘姥姥一进荣国府》</h3>
+    <p class="share-ending">${title}</p>
+    <p>拿到银子：${getSilverText(amount)}</p>
+    <p>文化热点：${count}/7</p>
+    <p>人情值剩余：${state.renqing}</p>
+    <p class="share-footer">改编自《红楼梦》第六回 · 互动叙事</p>
+  `;
+}
+
+async function shareSummary() {
+  const summary = document.getElementById('share-summary');
+  if (!summary) return;
+
+  // Web Share API（优先）
+  const text = `我在《刘姥姥一进荣国府》中拿到了${getSilverText(getSilverAmount())}银子，发现了${state.discoveredHotspots.size}/7个文化细节。`;
+  if (navigator.share) {
+    try {
+      await navigator.share({
+        title: '刘姥姥一进荣国府',
+        text: text,
+        url: window.location.href
+      });
+      return;
+    } catch (e) {}
+  }
+
+  // html2canvas 截图
+  if (typeof html2canvas === 'undefined') {
+    alert('截图库未加载，已复制文字总结到剪贴板。');
+    copySummaryText(text);
+    return;
+  }
+  try {
+    const canvas = await html2canvas(summary, { backgroundColor: '#faf5eb', scale: 2 });
+    const link = document.createElement('a');
+    link.download = 'liulaolao-summary.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  } catch (e) {
+    alert('截图失败，已复制文字总结。');
+    copySummaryText(text);
+  }
+}
+
+function copySummaryText(text) {
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).catch(() => {});
+  }
 }
 
 function resetGame() {
@@ -1551,16 +1801,24 @@ function resetGame() {
   state.currentPageIndex = 0;
   state.renqing = 100;
   state.discoveredHotspots.clear();
+  state.unlockedTerms.clear();
+  state.unlockedCharacters.clear();
+  state.unlockedCharacters.add('liulaolao');
   state.feedbackMode = false;
   state.lastFeedback = null;
   state.lastConvergeTo = null;
   state.prologueStep = -1;
+  state.pendingErrorModal = null;
+
+  quests.forEach((q) => q.completed = false);
+  relationshipGraph.nodes.forEach((n) => delete n.deed);
 
   settlementScreen.classList.add('hidden');
   manualPanel.classList.add('hidden');
-  charsPanel.classList.add('hidden');
+  relationPanel.classList.add('hidden');
   hotspotCard.classList.add('hidden');
   prologueScreen.classList.add('hidden');
+  errorModal && errorModal.classList.add('hidden');
   startScreen.classList.remove('hidden');
 
   setPortrait('旁白');
@@ -1568,6 +1826,7 @@ function resetGame() {
   updateCounts();
   updateHP();
   renderManual();
+  renderRelationPanel();
 }
 
 async function startGame() {
@@ -1577,8 +1836,13 @@ async function startGame() {
   updateCounts();
   updateHP();
   renderManual();
+  renderRelationPanel();
   recordGameStart();
   await renderNode('node_1');
+}
+
+function goHome() {
+  resetGame();
 }
 
 // ============================
@@ -1587,10 +1851,12 @@ async function startGame() {
 dialogBox.addEventListener('click', async (e) => {
   if (e.target.classList.contains('term')) {
     e.stopPropagation();
-    recordTermClick(e.target.dataset.term);
+    const term = e.target.dataset.term;
+    unlockTerm(term);
+    recordTermClick(term);
     const rect = e.target.getBoundingClientRect();
     const stageRect = stage.getBoundingClientRect();
-    showTooltip(e.target.dataset.term, rect.left - stageRect.left, rect.top - stageRect.top);
+    showTooltip(term, rect.left - stageRect.left, rect.top - stageRect.top);
     return;
   }
   hideTooltip();
@@ -1600,10 +1866,12 @@ dialogBox.addEventListener('click', async (e) => {
 stage.addEventListener('click', (e) => {
   if (e.target.classList.contains('term')) {
     e.stopPropagation();
-    recordTermClick(e.target.dataset.term);
+    const term = e.target.dataset.term;
+    unlockTerm(term);
+    recordTermClick(term);
     const rect = e.target.getBoundingClientRect();
     const stageRect = stage.getBoundingClientRect();
-    showTooltip(e.target.dataset.term, rect.left - stageRect.left, rect.top - stageRect.top);
+    showTooltip(term, rect.left - stageRect.left, rect.top - stageRect.top);
     return;
   }
   hideTooltip();
@@ -1621,6 +1889,7 @@ manualBtn.addEventListener('click', (e) => {
   e.stopPropagation();
   renderManual();
   manualPanel.classList.remove('hidden');
+  switchManualTab('hotspots');
 });
 
 closeManual.addEventListener('click', (e) => {
@@ -1628,16 +1897,35 @@ closeManual.addEventListener('click', (e) => {
   manualPanel.classList.add('hidden');
 });
 
-charsBtn.addEventListener('click', (e) => {
+relationBtn.addEventListener('click', (e) => {
   e.stopPropagation();
-  renderCharsPanel();
-  charsPanel.classList.remove('hidden');
+  relationPanel.classList.remove('hidden');
+  requestAnimationFrame(() => renderRelationPanel());
 });
 
-closeChars.addEventListener('click', (e) => {
+closeRelation.addEventListener('click', (e) => {
   e.stopPropagation();
-  charsPanel.classList.add('hidden');
+  relationPanel.classList.add('hidden');
 });
+
+errorModalContinue.addEventListener('click', (e) => {
+  e.stopPropagation();
+  dismissErrorModal();
+});
+
+if (manualTabs) {
+  manualTabs.forEach((tab) => {
+    tab.addEventListener('click', (e) => {
+      e.stopPropagation();
+      switchManualTab(tab.dataset.tab);
+    });
+  });
+}
+
+function switchManualTab(tabName) {
+  manualTabs.forEach((t) => t.classList.toggle('active', t.dataset.tab === tabName));
+  manualSections.forEach((s) => s.classList.toggle('active', s.dataset.tab === tabName));
+}
 
 // ============================
 // 封面面板与存档
@@ -1654,12 +1942,18 @@ function closeCoverPanel() {
 
 function getSaveData() {
   return {
-    version: 1,
+    version: 2,
     currentNodeId: state.currentNodeId,
     currentPageIndex: state.currentPageIndex,
     renqing: state.renqing,
     discoveredHotspots: Array.from(state.discoveredHotspots),
-    prologueStep: state.prologueStep
+    unlockedTerms: Array.from(state.unlockedTerms),
+    unlockedCharacters: Array.from(state.unlockedCharacters),
+    quests: quests.map((q) => ({ id: q.id, completed: q.completed })),
+    prologueStep: state.prologueStep,
+    characterDeeds: relationshipGraph.nodes
+      .filter((n) => n.deed)
+      .map((n) => ({ id: n.id, deed: n.deed }))
   };
 }
 
@@ -1673,7 +1967,7 @@ function saveGame() {
     openCoverPanel('存档成功', `
       <p>当前进度已保存到浏览器本地。</p>
       <p>下次打开游戏，在封面点击「游戏存档」即可读取。</p>
-      <p><strong>已保存内容：</strong>当前节点、人情值、已收集的文化热点。</p>
+      <p><strong>已保存内容：</strong>当前节点、人情值、已收集的文化热点、已解锁词汇与人物。</p>
     `);
   } catch (e) {
     openCoverPanel('存档失败', '<p>浏览器不允许保存本地数据，请检查隐私设置。</p>');
@@ -1696,13 +1990,30 @@ function loadGame() {
     state.currentPageIndex = data.currentPageIndex || 0;
     state.renqing = typeof data.renqing === 'number' ? data.renqing : 100;
     state.discoveredHotspots = new Set(data.discoveredHotspots || []);
+    state.unlockedTerms = new Set(data.unlockedTerms || []);
+    state.unlockedCharacters = new Set(data.unlockedCharacters || []);
+    if (!state.unlockedCharacters.has('liulaolao')) state.unlockedCharacters.add('liulaolao');
     state.prologueStep = data.prologueStep || -1;
     state.feedbackMode = false;
     state.lastFeedback = null;
     state.lastConvergeTo = null;
+    state.pendingErrorModal = null;
+
+    quests.forEach((q) => {
+      const saved = (data.quests || []).find((x) => x.id === q.id);
+      q.completed = saved ? saved.completed : false;
+    });
+
+    relationshipGraph.nodes.forEach((n) => delete n.deed);
+    (data.characterDeeds || []).forEach((d) => {
+      const node = relationshipGraph.nodes.find((n) => n.id === d.id);
+      if (node) node.deed = d.deed;
+    });
+
     updateCounts();
     updateHP();
     renderManual();
+    renderRelationPanel();
     closeCoverPanel();
     startScreen.classList.add('hidden');
     prologueScreen.classList.add('hidden');
@@ -1720,7 +2031,6 @@ function renderSavePanel() {
     if (raw) {
       const data = JSON.parse(raw);
       const title = nodeTitles[data.currentNodeId] || data.currentNodeId;
-      const date = new Date().toLocaleString('zh-CN');
       info = `<p><strong>存档节点：</strong>${title}</p><p><strong>人情值：</strong>${data.renqing}</p><p><strong>文化热点：</strong>${(data.discoveredHotspots || []).length}/7</p>`;
     }
   } catch (e) {}
@@ -1743,8 +2053,8 @@ function renderAboutPanel() {
   openCoverPanel('游戏介绍', `
     <p>《刘姥姥一进荣国府》改编自《红楼梦》第六回。</p>
     <p>你扮演刘姥姥：一个六十多岁的乡下老太太，冬天家里揭不开锅，只好带着外孙板儿，去京城大户贾府求助。</p>
-    <p>一路上你要学会「说话」——称呼对不对、时机对不对，都会影响你能不能进门、见到人、求到钱。</p>
-    <p>点击画面上的文化热点，可以把不懂的物件收进「文化手册」，最后结算时看看你发现了多少细节。</p>
+    <p>一路上你要学会「说话」——称呼对不对、时机对不对，都会影响你拿到多少银子。</p>
+    <p>点击画面上的文化热点，可以把不懂的物件收进「游戏手册」。</p>
   `);
 }
 
@@ -1755,10 +2065,9 @@ function renderRulesPanel() {
     <p>出现选项时，点击你认为最合适的回答。</p>
     <h3>人情值</h3>
     <p>屏幕上方有一条「人情」血条，满分 100。选错话会扣人情，选对话不扣。</p>
-    <p>每次扣分时，画面会弹出原因，告诉你为什么这个选择不好。</p>
-    <p>人情值降到一定界限，就会触发不同结局：进不了门、见不到周瑞家的、见不到凤姐、拿不到银子。</p>
+    <p>人情值越高，最后拿到的银子越多。</p>
     <h3>文化热点</h3>
-    <p>画面里会出现带「!」的金色标记，点击可以查看物件解释，并收入右上角「文化手册」。不影响主线，但会影响结局评价。</p>
+    <p>画面里会出现带「!」的金色标记，点击可以查看物件解释，并收入右上角「游戏手册」。</p>
   `);
 }
 
@@ -1772,6 +2081,16 @@ prologueBtn.addEventListener('click', () => {
 
 restartBtn.addEventListener('click', () => {
   resetGame();
+});
+
+homeBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  goHome();
+});
+
+saveBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  saveGame();
 });
 
 coverAboutBtn.addEventListener('click', (e) => {
@@ -1798,7 +2117,13 @@ coverPanel.addEventListener('click', (e) => {
   if (e.target === coverPanel) closeCoverPanel();
 });
 
+shareBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  shareSummary();
+});
+
 // 初始化
 updateCounts();
 updateHP();
 renderManual();
+renderRelationPanel();

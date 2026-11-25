@@ -5,7 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <title>刘姥姥一进荣国府</title>
-  <link rel="stylesheet" href="style.css?v=8">
+  <link rel="stylesheet" href="style.css?v=9">
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js" crossorigin="anonymous"></script>
 </head>
 <body>
   <div id="app">
@@ -17,8 +18,10 @@
           <div id="hp-fill"></div>
           <span id="hp-text">人情 100</span>
         </div>
-        <button id="chars-btn" type="button">人物谱</button>
-        <button id="manual-btn" type="button">文化手册 <span id="manual-count">0/7</span></button>
+        <button id="relation-btn" type="button">人物关系</button>
+        <button id="manual-btn" type="button">游戏手册 <span id="manual-count">0/7</span></button>
+        <button id="save-btn" type="button">存档</button>
+        <button id="home-btn" type="button">主页</button>
       </div>
     </header>
 
@@ -54,17 +57,39 @@
 
     <div id="manual-panel" class="hidden">
       <div class="panel-content">
-        <h2>文化手册 <span id="panel-count">0/7</span></h2>
-        <div id="manual-list"></div>
+        <h2>游戏手册 <span id="panel-count">0/7</span></h2>
+        <div class="manual-tabs">
+          <button class="manual-tab active" data-tab="hotspots">文化热点</button>
+          <button class="manual-tab" data-tab="characters">人物</button>
+          <button class="manual-tab" data-tab="terms">词汇</button>
+          <button class="manual-tab" data-tab="quests">任务</button>
+        </div>
+        <div id="manual-list">
+          <div class="manual-section active" data-tab="hotspots" id="manual-hotspots"></div>
+          <div class="manual-section" data-tab="characters" id="manual-characters"></div>
+          <div class="manual-section" data-tab="terms" id="manual-terms"></div>
+          <div class="manual-section" data-tab="quests" id="manual-quests"></div>
+        </div>
         <button id="close-manual" type="button">关闭</button>
       </div>
     </div>
 
-    <div id="chars-panel" class="hidden">
+    <div id="relation-panel" class="hidden">
       <div class="panel-content">
-        <h2>人物谱</h2>
-        <div id="chars-list"></div>
-        <button id="close-chars" type="button">关闭</button>
+        <h2>人物关系网</h2>
+        <div id="relation-svg"></div>
+        <div id="relation-list"></div>
+        <button id="close-relation" type="button">关闭</button>
+      </div>
+    </div>
+
+    <div id="error-modal" class="hidden">
+      <div class="error-modal-bg"></div>
+      <div class="error-modal-content">
+        <h3 id="error-modal-title">话说得不太妥</h3>
+        <div id="error-modal-text"></div>
+        <div id="error-modal-reason"></div>
+        <button id="error-modal-continue" type="button">我明白了，继续</button>
       </div>
     </div>
 
@@ -105,11 +130,15 @@
 
     <div id="settlement-screen" class="hidden">
       <div class="settlement-content">
-        <h2>文化手册结算</h2>
+        <h2>游戏手册结算</h2>
         <p id="settlement-count"></p>
         <p id="settlement-rating"></p>
         <div id="settlement-list"></div>
-        <button id="restart-btn" type="button">重新开始</button>
+        <div id="share-summary"></div>
+        <div class="settlement-actions">
+          <button id="share-btn" type="button">保存/分享总结</button>
+          <button id="restart-btn" type="button">重新开始</button>
+        </div>
       </div>
     </div>
 
@@ -118,6 +147,6 @@
     <div id="hp-change" class="hidden"></div>
   </div>
 
-  <script src="game.js?v=8"></script>
+  <script src="game.js?v=9"></script>
 </body>
 </html>
